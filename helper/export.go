@@ -2,16 +2,20 @@ package helper
 
 import (
 	"context"
+	"encoding/csv"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"quiz/configs"
+	"quiz/model"
 
 	"io"
 
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
 	"google.golang.org/api/drive/v3"
+	"gorm.io/gorm"
 )
 
 // ServiceAccount mengembalikan klien HTTP yang terautentikasi untuk penggunaan layanan Google Drive.
@@ -76,3 +80,62 @@ func UploadFile(config configs.ProgramConfig, fileName string) (string, error){
 
 	return downloadLink, nil
 }
+
+func exportToCSV(db *gorm.DB, modelName string) (string, error) {
+
+	// Ambil data dari database beserta data terkait dari tabel Questions dan Options
+	var data []model.Quiz
+	if err := db.Preload("Questions").Preload("Questions.Options").Find(&data).Error; err != nil {
+		return "", err
+	}
+
+	// Buat file CSV
+	fileName := modelName + ".csv"
+	file, err := os.Create(fileName)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	// Buat penulis CSV
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// Tulis header ke file CSV
+	header := []string{"ID", "Title", "Description", "Start Date", "End Date", "Question", "Options"}
+	writer.Write(header)
+
+	// Tulis data ke file CSV
+	for _, quiz := range data {
+		for _, question := range quiz.Questions {
+			for _, option := range question.Options {
+				row := []string{
+					fmt.Sprint(quiz.ID),
+					quiz.Title,
+					quiz.Description,
+					quiz.Start_date.Format("2006-01-02"),
+					quiz.End_date.Format("2006-01-02"),
+					question.Question,
+					option.Value,
+					fmt.Sprint(option.Is_right),
+				}
+				writer.Write(row)
+			}
+		}
+	}
+
+	writer.Flush()
+
+	if err := writer.Error(); err != nil {
+		return "", err
+	}
+
+	var config = configs.InitConfig()
+	download,errUp := UploadFile(*config ,fileName )
+
+	if errUp != nil{
+		return "", err
+	}
+	return download, nil
+}
+
