@@ -81,16 +81,15 @@ func UploadFile(config configs.ProgramConfig, fileName string) (string, error){
 	return downloadLink, nil
 }
 
-func exportToCSV(db *gorm.DB, modelName string) (string, error) {
-
-	// Ambil data dari database beserta data terkait dari tabel Questions dan Options
-	var data []model.Quiz
-	if err := db.Preload("Questions").Preload("Questions.Options").Find(&data).Error; err != nil {
+func exportQuizToCSV(db *gorm.DB, quizID uint) (string, error) {
+	// Ambil data kuis (quiz) berdasarkan ID
+	var quiz model.Quiz
+	if err := db.Preload("Questions").Preload("Questions.Options").Where("id = ?", quizID).First(&quiz).Error; err != nil {
 		return "", err
 	}
 
 	// Buat file CSV
-	fileName := modelName + ".csv"
+	fileName := fmt.Sprintf("file/quiz_%d.csv", quizID)
 	file, err := os.Create(fileName)
 	if err != nil {
 		return "", err
@@ -106,21 +105,19 @@ func exportToCSV(db *gorm.DB, modelName string) (string, error) {
 	writer.Write(header)
 
 	// Tulis data ke file CSV
-	for _, quiz := range data {
-		for _, question := range quiz.Questions {
-			for _, option := range question.Options {
-				row := []string{
-					fmt.Sprint(quiz.ID),
-					quiz.Title,
-					quiz.Description,
-					quiz.Start_date.Format("2006-01-02"),
-					quiz.End_date.Format("2006-01-02"),
-					question.Question,
-					option.Value,
-					fmt.Sprint(option.Is_right),
-				}
-				writer.Write(row)
+	for _, question := range quiz.Questions {
+		for _, option := range question.Options {
+			row := []string{
+				fmt.Sprint(quiz.ID),
+				quiz.Title,
+				quiz.Description,
+				quiz.Start_date.Format("2006-01-02"),
+				quiz.End_date.Format("2006-01-02"),
+				question.Question,
+				option.Value,
+				fmt.Sprint(option.Is_right),
 			}
+			writer.Write(row)
 		}
 	}
 
@@ -131,11 +128,12 @@ func exportToCSV(db *gorm.DB, modelName string) (string, error) {
 	}
 
 	var config = configs.InitConfig()
-	download,errUp := UploadFile(*config ,fileName )
+	download, errUp := UploadFile(*config, fileName)
 
-	if errUp != nil{
-		return "", err
+	if errUp != nil {
+		return "", errUp
 	}
 	return download, nil
 }
+
 
