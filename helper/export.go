@@ -81,59 +81,48 @@ func UploadFile(config configs.ProgramConfig, fileName string) (string, error){
 	return downloadLink, nil
 }
 
-func exportQuizToCSV(db *gorm.DB, quizID uint) (string, error) {
-	// Ambil data kuis (quiz) berdasarkan ID
-	var quiz model.Quiz
-	if err := db.Preload("Questions").Preload("Questions.Options").Where("id = ?", quizID).First(&quiz).Error; err != nil {
-		return "", err
-	}
+func exportHistoryToCSVByUserID(db *gorm.DB, userID uint) (string, error) {
+    var history []model.HistoryAnswer
 
-	// Buat file CSV
-	fileName := fmt.Sprintf("file/quiz_%d.csv", quizID)
-	file, err := os.Create(fileName)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
+    // Ambil data HistoryAnswer berdasarkan user_id
+    if err := db.Where("user_id = ?", userID).Find(&history).Error; err != nil {
+        return "", err
+    }
 
-	// Buat penulis CSV
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
+    // Buat file CSV
+    fileName := fmt.Sprintf("file/history_user_%d.csv", userID)
+    file, err := os.Create(fileName)
+    if err != nil {
+        return "", err
+    }
+    defer file.Close()
 
-	// Tulis header ke file CSV
-	header := []string{"ID", "Title", "Description", "Start Date", "End Date", "Question", "Options"}
-	writer.Write(header)
+    // Buat penulis CSV
+    writer := csv.NewWriter(file)
+    defer writer.Flush()
 
-	// Tulis data ke file CSV
-	for _, question := range quiz.Questions {
-		for _, option := range question.Options {
-			row := []string{
-				fmt.Sprint(quiz.ID),
-				quiz.Title,
-				quiz.Description,
-				quiz.Start_date.Format("2006-01-02"),
-				quiz.End_date.Format("2006-01-02"),
-				question.Question,
-				option.Value,
-				fmt.Sprint(option.Is_right),
-			}
-			writer.Write(row)
-		}
-	}
+    // Tulis header ke file CSV
+    header := []string{"user_id", "name", "score"}
+    writer.Write(header)
 
-	writer.Flush()
+    // Tulis data ke file CSV
+    for _, entry := range history {
+        row := []string{
+            fmt.Sprint(entry.User_id),
+            entry.Name,
+            fmt.Sprint(entry.Score),
+        }
+        writer.Write(row)
+    }
 
-	if err := writer.Error(); err != nil {
-		return "", err
-	}
+    writer.Flush()
 
-	var config = configs.InitConfig()
-	download, errUp := UploadFile(*config, fileName)
+    if err := writer.Error(); err != nil {
+        return "", err
+    }
 
-	if errUp != nil {
-		return "", errUp
-	}
-	return download, nil
+    return fileName, nil
 }
+
 
 
