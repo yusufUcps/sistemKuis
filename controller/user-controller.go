@@ -63,10 +63,6 @@ func (uc *UserController) Login() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("wrong email or password", nil))
 		}
 
-		if err == 3 {
-			return c.JSON(http.StatusNotFound, helper.FormatResponse("data not found", nil))
-		}
-
 		var jwtToken = helper.GenerateJWT(uc.cfg.Secret, res.ID, res.Name)
 
 		if jwtToken == "" {
