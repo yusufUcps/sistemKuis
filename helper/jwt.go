@@ -42,18 +42,7 @@ func ExtractToken(token *jwt.Token) (uint, string) {
 		fmt.Println(expTime.Time.Compare(time.Now()))
 		if expTime.Time.Compare(time.Now()) > 0 {
 			var mapClaim = claims.(jwt.MapClaims)
-
-			id, idOk := mapClaim["id"].(float64)
-			if !idOk {
-				logrus.Error("Invalid ID in claims")
-		 	}
-
-			name, nameOk := mapClaim["name"].(string)
-			if !nameOk {
-				logrus.Error("Invalid Name in claims")
-			}
-
-			return uint(id), name
+			return uint(mapClaim["id"].(float64)), mapClaim["name"].(string)
 		}
 
 		logrus.Error("Token expired")
