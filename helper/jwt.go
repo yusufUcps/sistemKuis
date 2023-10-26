@@ -35,19 +35,29 @@ func generateToken(signKey string, id uint, name string) string {
 }
 
 
-func ExtractToken(token *jwt.Token) any {
+func ExtractToken(token *jwt.Token) (uint, string) {
 	if token.Valid {
 		var claims = token.Claims
 		expTime, _ := claims.GetExpirationTime()
 		fmt.Println(expTime.Time.Compare(time.Now()))
 		if expTime.Time.Compare(time.Now()) > 0 {
 			var mapClaim = claims.(jwt.MapClaims)
-			return mapClaim["id"]
+
+			id, idOk := mapClaim["id"].(float64)
+			if !idOk {
+				logrus.Error("Invalid ID in claims")
+		 	}
+
+			name, nameOk := mapClaim["name"].(string)
+			if !nameOk {
+				logrus.Error("Invalid Name in claims")
+			}
+
+			return uint(id), name
 		}
 
 		logrus.Error("Token expired")
-		return nil
-
 	}
-	return nil
+	return 0, ""
 }
+

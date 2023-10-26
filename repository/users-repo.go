@@ -55,3 +55,14 @@ func (um *UsersModel) Login(email string, password string) (*model.Users, int) {
 	return &data,0
 }
 
+func (um *UsersModel) MyProfile(id uint) (*model.Users, int) {
+	var data = model.Users{}
+
+	if err := um.db.First(&data, id).Error; err != nil {
+		logrus.Error("Model : Myprofil data error,", err.Error())
+		return nil, 1
+	}
+
+	return &data,0
+}
+

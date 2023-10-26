@@ -7,6 +7,7 @@ import (
 	"quiz/model"
 	"quiz/repository"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -75,3 +76,20 @@ func (uc *UserController) Login() echo.HandlerFunc {
 		return c.JSON(http.StatusOK, helper.FormatResponseJWT("success", res ,jwtToken))
 	}
 }
+
+func (uc *UserController) MyProfile() echo.HandlerFunc {
+	return func(c echo.Context) error {
+	var token = c.Get("user")
+
+	id, _ := helper.ExtractToken(token.(*jwt.Token))
+
+	res, err := uc.model.MyProfile(id)
+
+	if err == 1 {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve user profile")
+	}
+		return c.JSON(http.StatusOK, helper.FormatResponse("success get my profil", res))
+	}
+}
+
+
