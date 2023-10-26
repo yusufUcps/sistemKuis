@@ -8,20 +8,19 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func GenerateJWT(signKey string, refreshKey string, userID string) map[string]any {
-	var result = map[string]any{}
-	var accessToken = generateToken(signKey, userID)
+func GenerateJWT(signKey string, userID uint, name string) string {
+	var accessToken = generateToken(signKey, userID, name)
 	if accessToken == "" {
-		return nil
+		return ""
 	}
-	result["access_token"] = accessToken
-	return result
+	return accessToken
 }
 
 
-func generateToken(signKey string, id string) string {
+func generateToken(signKey string, id uint, name string) string {
 	var claims = jwt.MapClaims{}
 	claims["id"] = id
+	claims["name"] = name
 	claims["iat"] = time.Now().Unix()
 	claims["exp"] = time.Now().Add(time.Minute * 10).Unix()
 
