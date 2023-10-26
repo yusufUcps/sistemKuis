@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"quiz/helper"
 	"quiz/model"
 
@@ -65,4 +66,43 @@ func (um *UsersModel) MyProfile(id uint) (*model.Users, int) {
 
 	return &data,0
 }
+
+func (um *UsersModel) UpdateMyProfile(updateUser *model.Users) (*model.Users, int) {
+	var user = model.Users{}
+
+	if err := um.db.First(&user, updateUser.ID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.Error("Repo: User not found for UpdateMyProfile, ", err.Error())
+			return nil, 1
+		}
+		logrus.Error("Repo: Select method UpdateMyProfile data error, ", err.Error())
+		return nil, 2
+	}
+
+	if user.Email != updateUser.Email {
+		var existingUser = model.Users{}
+		if err := um.db.Where("email = ?", updateUser.Email).First(&existingUser).Error; err == nil {
+			logrus.Error("Repo: UpdateMyProfile, Email already registered")
+			return nil, 3
+		}
+	}
+
+	user.Name = updateUser.Name
+	user.Email = updateUser.Email
+	user.Password = updateUser.Password
+
+	var qry = um.db.Save(&user)
+	if err := qry.Error; err != nil {
+		logrus.Error("Repo: Save method UpdateMyProfile data error, ", err.Error())
+		return nil, 2
+	}
+
+	if dataCount := qry.RowsAffected; dataCount < 1 {
+		logrus.Error("Repo: UpdateMyProfile data error, no data affected")
+		return nil, 2
+	}
+
+	return &user, 0
+}
+
 

@@ -12,4 +12,5 @@ func RouteUser(e *echo.Echo, uc controller.UserController, cfg configs.ProgramCo
 	e.POST("/users", uc.Register())
 	e.POST("/login", uc.Login())
 	e.GET("/myprofile", uc.MyProfile(), echojwt.JWT([]byte(cfg.Secret)))
+	e.PUT("/myprofile", uc.UpdateMyProfile(), echojwt.JWT([]byte(cfg.Secret)))
 }

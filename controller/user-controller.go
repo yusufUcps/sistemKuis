@@ -88,4 +88,37 @@ func (uc *UserController) MyProfile() echo.HandlerFunc {
 	}
 }
 
+func (uc *UserController) UpdateMyProfile() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var token = c.Get("user")
+
+		id, _ := helper.ExtractToken(token.(*jwt.Token))
+
+		var input = model.Users{}
+		if err := c.Bind(&input); err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil))
+		}
+
+		hashedPassword := helper.HashPassword(input.Password)
+		input.Password = hashedPassword
+		input.ID = id
+
+		res, err := uc.model.UpdateMyProfile(&input)
+
+		if err == 1 {
+			return echo.NewHTTPError(http.StatusNotFound, helper.FormatResponse("user profile not found", nil))
+		}
+
+		if err == 2 {
+			return echo.NewHTTPError(http.StatusInternalServerError, helper.FormatResponse("failed to update user profile", nil))
+		}
+
+		if err == 3 {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Email already registered", nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("success update user profile", res))
+	}
+}
+
 
