@@ -22,6 +22,14 @@ type UserRegisterRes struct {
     Token    string `json:"token" `
 }
 
+type MyProfileRes struct {
+	Id uint  `json:"id" `
+    Created_at time.Time`json:"created_at" `
+    Updatad_at time.Time`json:"updated_at" `
+    Name     string `json:"name" `
+    Email    string `json:"email" `
+}
+
 func ConvertRegisterRes(user *Users, token string) *UserRegisterRes {
     registerRes := UserRegisterRes{
         Id:         user.ID,
@@ -32,5 +40,16 @@ func ConvertRegisterRes(user *Users, token string) *UserRegisterRes {
         Token:      token,
     }
     return &registerRes
+}
+
+func ConvertMyProfileRes(user *Users) *MyProfileRes {
+    myProfileRes := MyProfileRes{
+        Id:         user.ID,
+        Created_at: user.CreatedAt,
+        Updatad_at: user.UpdatedAt,
+        Name:       user.Name,
+        Email:      user.Email,
+    }
+    return &myProfileRes
 }
 

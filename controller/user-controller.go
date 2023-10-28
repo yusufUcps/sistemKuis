@@ -79,16 +79,19 @@ func (uc *UserController) Login() echo.HandlerFunc {
 
 func (uc *UserController) MyProfile() echo.HandlerFunc {
 	return func(c echo.Context) error {
-	var token = c.Get("user")
+		var token = c.Get("user")
 
-	id := helper.ExtractToken(token.(*jwt.Token))
+		id := helper.ExtractToken(token.(*jwt.Token))
 
-	res, err := uc.model.MyProfile(id)
+		res, err := uc.model.MyProfile(id)
 
-	if err == 1 {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve user profile")
-	}
-		return c.JSON(http.StatusOK, helper.FormatResponse("success get my profil", res))
+		if err == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process data, something happend", nil, nil))
+		}
+
+		resConvert := model.ConvertMyProfileRes(res)
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("success get my profil", resConvert, nil))
 	}
 }
 
@@ -100,7 +103,7 @@ func (uc *UserController) UpdateMyProfile() echo.HandlerFunc {
 
 		var input = model.Users{}
 		if err := c.Bind(&input); err != nil {
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil, nil))
 		}
 
 		hashedPassword := helper.HashPassword(input.Password)
@@ -110,18 +113,20 @@ func (uc *UserController) UpdateMyProfile() echo.HandlerFunc {
 		res, err := uc.model.UpdateMyProfile(&input)
 
 		if err == 1 {
-			return echo.NewHTTPError(http.StatusNotFound, helper.FormatResponse("user profile not found", nil))
+			return echo.NewHTTPError(http.StatusNotFound, helper.FormatResponse("user profile not found", nil, nil))
 		}
 
 		if err == 2 {
-			return echo.NewHTTPError(http.StatusInternalServerError, helper.FormatResponse("failed to update user profile", nil))
+			return echo.NewHTTPError(http.StatusInternalServerError, helper.FormatResponse("failed to update user profile", nil, nil))
 		}
 
 		if err == 3 {
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Email already registered", nil))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Email already registered", nil, nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("success update user profile", res))
+		resConvert := model.ConvertMyProfileRes(res)
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("success update user profile", resConvert, nil))
 	}
 }
 

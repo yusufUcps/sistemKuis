@@ -11,6 +11,6 @@ import (
 func RouteUser(e *echo.Echo, uc controller.UserController, cfg configs.ProgramConfig) {
 	e.POST("/users", uc.Register())
 	e.POST("/login", uc.Login())
-	e.GET("/myprofile", uc.MyProfile(), echojwt.JWT([]byte(cfg.Secret)))
-	e.PUT("/myprofile", uc.UpdateMyProfile(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/my-profile", uc.MyProfile(), echojwt.JWT([]byte(cfg.Secret)))
+	e.PUT("/my-profile", uc.UpdateMyProfile(), echojwt.JWT([]byte(cfg.Secret)))
 }
