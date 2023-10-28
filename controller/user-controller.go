@@ -37,7 +37,7 @@ func (uc *UserController) Register() echo.HandlerFunc {
 		}
 
 		if err == 2 {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process data, something happend", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process data, something happend", nil, nil))
 		}
 
 		var jwtToken = helper.GenerateJWT(uc.cfg.Secret, res.ID)
