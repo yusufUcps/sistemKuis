@@ -37,6 +37,10 @@ func (um *UsersModel) Register(newUser model.Users) (*model.Users, int) {
 	return &newUser, 0
 }
 
+func convertRegisterRes(users *model.Users) {
+	panic("unimplemented")
+}
+
 func (um *UsersModel) Login(email string, password string) (*model.Users, int) {
 	var data = model.Users{}
 	if err := um.db.Where("email = ?", email).First(&data).Error; err != nil {

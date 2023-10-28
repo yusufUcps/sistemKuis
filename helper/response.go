@@ -1,13 +1,13 @@
 package helper
 
-func FormatResponse(message string, data any, token string) map[string]any {
+func FormatResponse(message string, data any, paging any) map[string]any {
 	var response = map[string]any{}
 	response["message"] = message
 	if data != nil {
 		response["data"] = data
 	}
-	if token != "" {
-		response["token"] = token
+	if paging != nil {
+		response["token"] = paging
 	}
 	return response
 }

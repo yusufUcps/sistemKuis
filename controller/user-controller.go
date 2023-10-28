@@ -25,7 +25,7 @@ func (uc *UserController) Register() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var input model.Users
 		if err := c.Bind(&input); err != nil {
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil, nil))
 		}
 
 		hashedPassword := helper.HashPassword(input.Password)
@@ -33,7 +33,7 @@ func (uc *UserController) Register() echo.HandlerFunc {
 		res, err := uc.model.Register(input)
 
 		if err == 1 {
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Email already registered", nil))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Email already registered", nil, nil))
 		}
 
 		if err == 2 {
@@ -42,7 +42,9 @@ func (uc *UserController) Register() echo.HandlerFunc {
 
 		var jwtToken = helper.GenerateJWT(uc.cfg.Secret, res.ID)
 
-		return c.JSON(http.StatusOK, helper.FormatResponseJWT("Succes create account", res, jwtToken))
+		resConvert := model.ConvertRegisterRes(res, jwtToken)
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Succes create account", resConvert, nil))
 	}
 }
 
