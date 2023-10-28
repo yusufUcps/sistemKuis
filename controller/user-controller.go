@@ -69,7 +69,7 @@ func (uc *UserController) Login() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process data", nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponseJWT("success", res ,jwtToken))
+		return c.JSON(http.StatusOK, helper.FormatResponse("success", res ,jwtToken))
 	}
 }
 
