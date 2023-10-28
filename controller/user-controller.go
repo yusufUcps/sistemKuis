@@ -52,26 +52,28 @@ func (uc *UserController) Login() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var input = model.Login{}
 		if err := c.Bind(&input); err != nil {
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil, nil))
 		}
 
 		var res,err = uc.model.Login(input.Email, input.Password)
 
 		if err == 1 {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process data, something happend", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process data, something happend", nil, nil))
 		}
 
 		if err == 2 {
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("wrong email or password", nil))
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("wrong email or password", nil, nil))
 		}
 
 		var jwtToken = helper.GenerateJWT(uc.cfg.Secret, res.ID)
 
 		if jwtToken == "" {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process data", nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process data", nil, nil))
 		}
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("success", res ,jwtToken))
+		resConvert := model.ConvertLoginRes(res, jwtToken)
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("success", resConvert ,nil))
 	}
 }
 

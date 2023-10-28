@@ -10,3 +10,11 @@ type LoginRes struct {
     Token  string `json:"token"`
 }
 
+func ConvertLoginRes (user *Users, token string) *LoginRes{
+    LoginRes := LoginRes{
+        Name:       user.Name,
+        Token:      token,
+    }
+    return &LoginRes
+}
+
