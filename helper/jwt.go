@@ -8,8 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func GenerateJWT(signKey string, userID uint, name string) string {
-	var accessToken = generateToken(signKey, userID, name)
+func GenerateJWT(signKey string, userID uint) string {
+	var accessToken = generateToken(signKey, userID)
 	if accessToken == "" {
 		return ""
 	}
@@ -17,10 +17,9 @@ func GenerateJWT(signKey string, userID uint, name string) string {
 }
 
 
-func generateToken(signKey string, id uint, name string) string {
+func generateToken(signKey string, id uint) string {
 	var claims = jwt.MapClaims{}
 	claims["id"] = id
-	claims["name"] = name
 	claims["iat"] = time.Now().Unix()
 	claims["exp"] = time.Now().Add(time.Minute * 10).Unix()
 
@@ -35,18 +34,18 @@ func generateToken(signKey string, id uint, name string) string {
 }
 
 
-func ExtractToken(token *jwt.Token) (uint, string) {
+func ExtractToken(token *jwt.Token) uint {
 	if token.Valid {
 		var claims = token.Claims
 		expTime, _ := claims.GetExpirationTime()
 		fmt.Println(expTime.Time.Compare(time.Now()))
 		if expTime.Time.Compare(time.Now()) > 0 {
 			var mapClaim = claims.(jwt.MapClaims)
-			return uint(mapClaim["id"].(float64)), mapClaim["name"].(string)
+			return uint(mapClaim["id"].(float64))
 		}
 
 		logrus.Error("Token expired")
 	}
-	return 0, ""
+	return 0
 }
 

@@ -40,7 +40,7 @@ func (uc *UserController) Register() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process data, something happend", nil))
 		}
 
-		var jwtToken = helper.GenerateJWT(uc.cfg.Secret, res.ID, res.Name)
+		var jwtToken = helper.GenerateJWT(uc.cfg.Secret, res.ID)
 
 		return c.JSON(http.StatusOK, helper.FormatResponseJWT("Succes create account", res, jwtToken))
 	}
@@ -63,7 +63,7 @@ func (uc *UserController) Login() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("wrong email or password", nil))
 		}
 
-		var jwtToken = helper.GenerateJWT(uc.cfg.Secret, res.ID, res.Name)
+		var jwtToken = helper.GenerateJWT(uc.cfg.Secret, res.ID)
 
 		if jwtToken == "" {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process data", nil))
@@ -77,7 +77,7 @@ func (uc *UserController) MyProfile() echo.HandlerFunc {
 	return func(c echo.Context) error {
 	var token = c.Get("user")
 
-	id, _ := helper.ExtractToken(token.(*jwt.Token))
+	id := helper.ExtractToken(token.(*jwt.Token))
 
 	res, err := uc.model.MyProfile(id)
 
@@ -92,7 +92,7 @@ func (uc *UserController) UpdateMyProfile() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var token = c.Get("user")
 
-		id, _ := helper.ExtractToken(token.(*jwt.Token))
+		id := helper.ExtractToken(token.(*jwt.Token))
 
 		var input = model.Users{}
 		if err := c.Bind(&input); err != nil {
