@@ -7,8 +7,7 @@ func FormatResponse(message string, data any, paging any) map[string]any {
 		response["data"] = data
 	}
 	if paging != nil {
-		response["token"] = paging
+		response["paging"] = paging
 	}
 	return response
 }
-
