@@ -2,7 +2,6 @@ package controller
 
 import (
 	"net/http"
-	"quiz/configs"
 	"quiz/helper"
 	"quiz/model"
 	"quiz/repository"
@@ -11,14 +10,24 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type UserController struct {
-	cfg   configs.ProgramConfig
-	model repository.UsersModel
+type UserControllInterface interface {
+	Register() echo.HandlerFunc
+	Login() echo.HandlerFunc
+	MyProfile() echo.HandlerFunc
+	UpdateMyProfile() echo.HandlerFunc
 }
 
-func (uc *UserController) InitUserController(um repository.UsersModel, c configs.ProgramConfig) {
-	uc.model = um
-	uc.cfg = c
+type UserController struct {
+	repository repository.UsersInterface
+	jwt helper.JWTInterface
+}
+
+
+func NewUserControllInterface(r repository.UsersInterface, j helper.JWTInterface) UserControllInterface {
+	return &UserController{
+		repository: r,
+		jwt: j,
+	}
 }
 
 func (uc *UserController) Register() echo.HandlerFunc {
@@ -27,20 +36,21 @@ func (uc *UserController) Register() echo.HandlerFunc {
 		if err := c.Bind(&input); err != nil {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil, nil))
 		}
+		
+		res, errCase := uc.repository.Register(input)
 
-		hashedPassword := helper.HashPassword(input.Password)
-		input.Password = hashedPassword
-		res, err := uc.model.Register(input)
-
-		if err == 1 {
+		if errCase == 1 {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Email already registered", nil, nil))
 		}
 
-		if err == 2 {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process data, something happend", nil, nil))
+		if errCase == 2 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed Register User", nil, nil))
 		}
 
-		var jwtToken = helper.GenerateJWT(uc.cfg.Secret, res.ID)
+		var jwtToken = uc.jwt.GenerateJWT(res.ID)
+		if jwtToken == "" {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process jwt token", nil, nil))
+		}
 
 		resConvert := model.ConvertRegisterRes(res, jwtToken)
 
@@ -55,25 +65,25 @@ func (uc *UserController) Login() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil, nil))
 		}
 
-		var res,err = uc.model.Login(input.Email, input.Password)
+		var res, errCase = uc.repository.Login(input.Email, input.Password)
 
-		if err == 1 {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process data, something happend", nil, nil))
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Login", nil, nil))
 		}
 
-		if err == 2 {
+		if errCase == 2 {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("wrong email or password", nil, nil))
 		}
 
-		var jwtToken = helper.GenerateJWT(uc.cfg.Secret, res.ID)
+		var jwtToken = uc.jwt.GenerateJWT(res.ID)
 
 		if jwtToken == "" {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process data", nil, nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process jwt token", nil, nil))
 		}
 
 		resConvert := model.ConvertLoginRes(res, jwtToken)
 
-		return c.JSON(http.StatusOK, helper.FormatResponse("success", resConvert ,nil))
+		return c.JSON(http.StatusOK, helper.FormatResponse("Login Success", resConvert ,nil))
 	}
 }
 
@@ -81,12 +91,12 @@ func (uc *UserController) MyProfile() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var token = c.Get("user")
 
-		id := helper.ExtractToken(token.(*jwt.Token))
+		id := uc.jwt.ExtractToken(token.(*jwt.Token))
 
-		res, err := uc.model.MyProfile(id)
+		res, errCase := uc.repository.MyProfile(id)
 
-		if err == 1 {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process data, something happend", nil, nil))
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Get MyProfile", nil, nil))
 		}
 
 		resConvert := model.ConvertMyProfileRes(res)
@@ -99,29 +109,24 @@ func (uc *UserController) UpdateMyProfile() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var token = c.Get("user")
 
-		id := helper.ExtractToken(token.(*jwt.Token))
+		id := uc.jwt.ExtractToken(token.(*jwt.Token))
 
 		var input = model.Users{}
 		if err := c.Bind(&input); err != nil {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil, nil))
 		}
 
-		hashedPassword := helper.HashPassword(input.Password)
-		input.Password = hashedPassword
 		input.ID = id
 
-		res, err := uc.model.UpdateMyProfile(&input)
+		res, errCase := uc.repository.UpdateMyProfile(input)
 
-		if err == 1 {
-			return echo.NewHTTPError(http.StatusNotFound, helper.FormatResponse("user profile not found", nil, nil))
-		}
 
-		if err == 2 {
-			return echo.NewHTTPError(http.StatusInternalServerError, helper.FormatResponse("failed to update user profile", nil, nil))
-		}
-
-		if err == 3 {
+		if errCase == 2 {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Email already registered", nil, nil))
+		}
+
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("failed to update user profile", nil, nil))
 		}
 
 		resConvert := model.ConvertMyProfileRes(res)
@@ -129,5 +134,3 @@ func (uc *UserController) UpdateMyProfile() echo.HandlerFunc {
 		return c.JSON(http.StatusOK, helper.FormatResponse("success update user profile", resConvert, nil))
 	}
 }
-
-

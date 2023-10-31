@@ -9,7 +9,7 @@ import (
 type Users struct {
 	gorm.Model
     Name     string `json:"name" gorm:"type:varchar(255);not null"`
-    Email    string `json:"email" gorm:"type:varchar(20);unique;not null"`
+    Email    string `json:"email" gorm:"type:varchar(50);unique;not null"`
     Password string `json:"password" gorm:"not null"`
 }
 
@@ -19,8 +19,8 @@ type UserRegisterRes struct {
     Updatad_at time.Time`json:"updated_at" `
     Name     string `json:"name" `
     Email    string `json:"email" `
-    Token    string `json:"token" `
     Password string `json:"password" `
+    Token    string `json:"token" `
 }
 
 type MyProfileRes struct {
@@ -52,7 +52,7 @@ func ConvertMyProfileRes(user *Users) *MyProfileRes {
         Updatad_at: user.UpdatedAt,
         Name:       user.Name,
         Email:      user.Email,
-        Password:   user.Password,
+        Password:      user.Password,
     }
     return &myProfileRes
 }
