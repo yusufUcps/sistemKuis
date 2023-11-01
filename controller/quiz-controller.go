@@ -16,6 +16,7 @@ type QuizControllInterface interface {
 	GetAllQuiz() echo.HandlerFunc
 	GetQuizByID() echo.HandlerFunc
 	UpdateQuiz() echo.HandlerFunc
+	DeleteQuiz() echo.HandlerFunc
 }
 
 type QuizController struct {
@@ -146,5 +147,32 @@ func (qc *QuizController) UpdateQuiz() echo.HandlerFunc {
 		resConvert := model.ConvertQuizRes(res)
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("success update Quiz", resConvert, nil))
+	}
+}
+
+func (qc *QuizController) DeleteQuiz() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var token = c.Get("user")
+		quizId, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid quizId", nil, nil))
+		}
+
+		id := qc.jwt.ExtractToken(token.(*jwt.Token))
+
+		quiz_id := uint(quizId)
+
+		errCase := qc.repository.DeleteQuiz(quiz_id, id)
+
+		if errCase == 2 {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("You cannot Delete this quiz", nil, nil))
+		}
+
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("failed to Delete Quiz", nil, nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("success Delete Quiz", nil, nil))
 	}
 }

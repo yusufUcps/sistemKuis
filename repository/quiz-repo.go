@@ -13,6 +13,7 @@ type QuizInterface interface {
 	GetAllQuiz(page int, pageSize int, search string) ([]model.Quiz, int64, int)
 	GetQuizByID(id uint) (*model.Quiz, int)
 	UpdateQuiz(updateQuiz model.Quiz, userId uint) (*model.Quiz, int)
+	DeleteQuiz(quizId uint, userId uint)  int
 }
 
 type QuizModel struct {
@@ -100,4 +101,25 @@ func (qm *QuizModel) UpdateQuiz(updateQuiz model.Quiz, userId uint) (*model.Quiz
 	}
 
 	return &quiz, 0
+}
+
+func (qm *QuizModel) DeleteQuiz(quizId uint, userId uint)  int {
+	var quiz = model.Quiz{}
+
+	if err := qm.db.First(&quiz, quizId).Error; err != nil {
+		logrus.Error("Repository: Select method UpdateQuiz data error, ", err.Error())
+		return  1
+	}
+
+	if userId != quiz.User_id {
+		logrus.Error("Repository: DeleteQuiz, Unauthorized")
+		return  2
+	}
+
+	if err := qm.db.Delete(&quiz).Error; err != nil {
+		logrus.Error("Repository: Delete method DeleteQuiz data error, ", err.Error())
+		return  1
+	}
+
+	return  0
 }
