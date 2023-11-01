@@ -14,6 +14,7 @@ type QuizInterface interface {
 	GetQuizByID(id uint) (*model.Quiz, int)
 	UpdateQuiz(updateQuiz model.Quiz, userId uint) (*model.Quiz, int)
 	DeleteQuiz(quizId uint, userId uint)  int
+	GetAllMyQuiz(page int, pageSize int, search string, userId uint) ([]model.Quiz, int64, int)
 }
 
 type QuizModel struct {
@@ -122,4 +123,28 @@ func (qm *QuizModel) DeleteQuiz(quizId uint, userId uint)  int {
 	}
 
 	return  0
+}
+
+func (qm *QuizModel) GetAllMyQuiz(page int, pageSize int, search string, userId uint) ([]model.Quiz, int64, int) {
+	var listQuiz []model.Quiz
+	var count int64
+
+	if page <= 0 {
+        return nil, 0, 1
+    }
+
+	offset := (page - 1) * pageSize
+
+	if err := qm.db.Offset(offset).Limit(pageSize).Where("title LIKE ? AND user_id = ?", "%"+search+"%", userId).Find(&listQuiz).Count(&count).Error; err != nil {
+		
+		logrus.Error("Repository: Select method UpdateQuiz data error, ", err.Error())
+		return nil, 0, 1
+	}
+
+	if count == 0 {
+		logrus.Error("Repository: not found Quiz")
+		return nil, 0, 3
+	}
+
+	return listQuiz, count, 0
 }

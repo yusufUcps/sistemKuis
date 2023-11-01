@@ -21,4 +21,5 @@ func RouteQuiz(e *echo.Echo, uq controller.QuizControllInterface, cfg configs.Pr
 	e.GET("/quiz/:id", uq.GetQuizByID(), echojwt.JWT([]byte(cfg.Secret)))
 	e.PUT("/quiz/:id", uq.UpdateQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 	e.DELETE("/quiz/:id", uq.DeleteQuiz(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/my-quiz", uq.GetAllMyQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 }
