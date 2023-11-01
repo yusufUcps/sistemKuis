@@ -5,6 +5,7 @@ import (
 	"quiz/helper"
 	"quiz/model"
 	"quiz/repository"
+	"strconv"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
@@ -12,6 +13,7 @@ import (
 
 type QuizControllInterface interface {
 	InsertQuiz() echo.HandlerFunc
+	GetAllQuiz() echo.HandlerFunc
 }
 
 type QuizController struct {
@@ -49,5 +51,42 @@ func (qc *QuizController) InsertQuiz() echo.HandlerFunc {
 		resConvert := model.ConvertQuizRes(res)
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Succes create Quiz", resConvert, nil))
+	}
+}
+
+func (qc *QuizController) GetAllQuiz() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		
+		search := c.QueryParam("search")
+
+		page, err := strconv.Atoi(c.QueryParam("page"))
+			if err != nil {
+    		page = 1
+		}
+
+		pageSize, err := strconv.Atoi(c.QueryParam("pageSize")) 
+			if err != nil {
+    		pageSize = 10
+		}
+		
+		res, count, errCase := qc.repository.GetAllQuiz(page, pageSize, search)
+
+		if errCase == 1 {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid page", nil, nil))
+		}
+
+		if errCase == 2 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Get All Quiz", nil, nil))
+		}
+
+		if errCase == 3 {
+			return c.JSON(http.StatusNotFound, helper.FormatResponse("Quiz not Found", nil, nil))
+		}
+
+		resConvert := model.ConvertAllQuiz(res)
+
+		resPaging := model.ConvertPaging(page, pageSize, count) 
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Get All Quiz", resConvert, resPaging))
 	}
 }

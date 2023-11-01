@@ -17,4 +17,5 @@ func RouteUser(e *echo.Echo, uc controller.UserControllInterface, cfg configs.Pr
 
 func RouteQuiz(e *echo.Echo, uq controller.QuizControllInterface, cfg configs.ProgramConfig) {
 	e.POST("/quiz", uq.InsertQuiz(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/quiz", uq.GetAllQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 }
