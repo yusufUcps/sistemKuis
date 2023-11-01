@@ -12,6 +12,7 @@ type QuizInterface interface {
 	InsertQuiz(newQuiz model.Quiz) (*model.Quiz, int)
 	GetAllQuiz(page int, pageSize int, search string) ([]model.Quiz, int64, int)
 	GetQuizByID(id uint) (*model.Quiz, int)
+	UpdateQuiz(updateQuiz model.Quiz, userId uint) (*model.Quiz, int)
 }
 
 type QuizModel struct {
@@ -67,6 +68,34 @@ func (qm *QuizModel) GetQuizByID(id uint) (*model.Quiz, int) {
 
 	if err := qm.db.Preload("Questions").First(&quiz, id).Error; err != nil {
 		logrus.Error("Repository: Get data Quiz error, ", err.Error())
+		return nil, 1
+	}
+
+	return &quiz, 0
+}
+
+func (qm *QuizModel) UpdateQuiz(updateQuiz model.Quiz, userId uint) (*model.Quiz, int) {
+	var quiz = model.Quiz{}
+
+	if err := qm.db.First(&quiz, updateQuiz.ID).Error; err != nil {
+		logrus.Error("Repository: Select method UpdateQuiz data error, ", err.Error())
+		return nil, 1
+	}
+
+	if userId != quiz.User_id {
+		logrus.Error("Repository: UpdateQuiz, Unauthorized")
+		return nil, 2
+
+	}
+
+	quiz.Title = updateQuiz.Title
+	quiz.Description = updateQuiz.Description
+	quiz.Start_date  = updateQuiz.Start_date 
+	quiz.End_date  = updateQuiz.End_date 
+
+	var qry = qm.db.Save(&quiz)
+	if err := qry.Error; err != nil {
+		logrus.Error("Repository: Save method UpdateQuiz data error, ", err.Error())
 		return nil, 1
 	}
 
