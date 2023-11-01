@@ -5,6 +5,7 @@ import (
 	"quiz/configs"
 	"quiz/controller"
 	"quiz/database"
+	"quiz/helper"
 	"quiz/repository"
 	"quiz/routes"
 
@@ -19,11 +20,11 @@ func main() {
 	db := database.InitModel(*config)
 	database.Migrate(db)
 
-	userModel := repository.UsersModel{}
-	userModel.Init(db)
+	jwtInterface := helper.New(config.Secret)
 
-	userControll := controller.UserController{}
-	userControll.InitUserController(userModel, *config)
+	userModel := repository.NewUsersModel(db)
+
+	userControll := controller.NewUserControllInterface(userModel, jwtInterface)
 
 
 	e.Pre(middleware.RemoveTrailingSlash())
