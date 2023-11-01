@@ -14,3 +14,7 @@ func RouteUser(e *echo.Echo, uc controller.UserControllInterface, cfg configs.Pr
 	e.GET("/my-profile", uc.MyProfile(), echojwt.JWT([]byte(cfg.Secret)))
 	e.PUT("/my-profile", uc.UpdateMyProfile(), echojwt.JWT([]byte(cfg.Secret)))
 }
+
+func RouteQuiz(e *echo.Echo, uq controller.QuizControllInterface, cfg configs.ProgramConfig) {
+	e.POST("/quiz", uq.InsertQuiz(), echojwt.JWT([]byte(cfg.Secret)))
+}
