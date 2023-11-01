@@ -14,6 +14,7 @@ import (
 type QuizControllInterface interface {
 	InsertQuiz() echo.HandlerFunc
 	GetAllQuiz() echo.HandlerFunc
+	GetQuizByID() echo.HandlerFunc
 }
 
 type QuizController struct {
@@ -88,5 +89,26 @@ func (qc *QuizController) GetAllQuiz() echo.HandlerFunc {
 		resPaging := model.ConvertPaging(page, pageSize, count) 
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Get All Quiz", resConvert, resPaging))
+	}
+}
+
+func (qc *QuizController) GetQuizByID() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		
+		quizId, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid quizId", nil, nil))
+		}
+
+		res, errCase := qc.repository.GetQuizByID(uint(quizId))
+
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Get Quiz", nil, nil))
+		}
+
+		resConvert := model.ConvertQuizRes(res)
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Get Quiz", resConvert, nil))
 	}
 }

@@ -11,6 +11,7 @@ import (
 type QuizInterface interface {
 	InsertQuiz(newQuiz model.Quiz) (*model.Quiz, int)
 	GetAllQuiz(page int, pageSize int, search string) ([]model.Quiz, int64, int)
+	GetQuizByID(id uint) (*model.Quiz, int)
 }
 
 type QuizModel struct {
@@ -58,4 +59,16 @@ func (qm *QuizModel) GetAllQuiz(page int, pageSize int, search string) ([]model.
 	}
 
 	return listQuiz, count, 0
+}
+
+func (qm *QuizModel) GetQuizByID(id uint) (*model.Quiz, int) {
+
+	var quiz model.Quiz
+
+	if err := qm.db.Preload("Questions").First(&quiz, id).Error; err != nil {
+		logrus.Error("Repository: Get data Quiz error, ", err.Error())
+		return nil, 1
+	}
+
+	return &quiz, 0
 }
