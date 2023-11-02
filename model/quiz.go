@@ -25,7 +25,6 @@ type QuizRes struct {
 	Description    	string `json:"description" `
 	Start_date 		time.Time `json:"start_date" gorm:"type:datetime"`
 	End_date 		time.Time `json:"end_date" gorm:"type:datetime"`
-	Questions 		any `json:"questions"`
 }
 
 func ConvertQuizRes(quiz *Quiz) *QuizRes {
