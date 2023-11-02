@@ -65,6 +65,11 @@ func (um *UsersModel) Login(email string, password string) (*model.Users, int) {
 		return nil, 1
 	}
 
+	if password == ""{
+		logrus.Error("Repository: password nil")
+		return nil, 3
+	}
+
 	if err := helper.ComparePassword(user.Password, password); err != nil {
 		logrus.Error("Repository: Login data error,", err.Error())
 		return nil, 2
