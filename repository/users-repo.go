@@ -31,22 +31,25 @@ func NewUsersModel(db *gorm.DB) UsersInterface {
 
 
 func (um *UsersModel) Register(newUser model.Users) (*model.Users, int) {
-	user := &model.Users{}
+	var count int64
+	if err := um.db.Model(&model.Users{}).Where("email = ?", newUser.Email).Count(&count).Error; err != nil {
+		logrus.Error("Repository: Unable to check existing email:", err.Error())
+		return nil, 2 
+	}
 
+	if count > 0 {
+		logrus.Error("Repository: Email already registered")
+		return nil, 1 
+	}
 	hashedPassword := helper.HashPassword(newUser.Password)
 	newUser.Password = hashedPassword
 
-	if err := um.db.Where("email = ?", newUser.Email).First(user).Error; err == nil {
-		logrus.Error("Repository: Email already registered", err.Error())
-		return nil, 1
-	}
-
 	if err := um.db.Create(&newUser).Error; err != nil {
-		logrus.Error("Repository: Insert data error, ", err.Error())
-		return nil, 2
+		logrus.Error("Repository: Failed to insert data:", err.Error())
+		return nil, 2 
 	}
 
-	return &newUser, 0
+	return &newUser, 0 
 }
 
 func (um *UsersModel) Login(email string, password string) (*model.Users, int) {
