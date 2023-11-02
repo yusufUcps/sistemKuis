@@ -24,9 +24,11 @@ func main() {
 
 	userModel := repository.NewUsersModel(db)
 	quizModel := repository.NewQuizModel(db)
+	questionModel := repository.NewQuestionsModel(db)
 
 	userControll := controller.NewUserControllInterface(userModel, jwtInterface)
 	quizControll := controller.NewQuizControllInterface(quizModel, jwtInterface)
+	questionControll := controller.NewQuestionsControllInterface(questionModel, jwtInterface)
 
 	e.Pre(middleware.RemoveTrailingSlash())
 
@@ -38,6 +40,7 @@ func main() {
 
 	routes.RouteUser(e, userControll, *config)
 	routes.RouteQuiz(e, quizControll, *config)
+	routes.RouteQuestion(e, questionControll, *config)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.ServerPort)).Error())
 }

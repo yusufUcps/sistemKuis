@@ -23,3 +23,7 @@ func RouteQuiz(e *echo.Echo, uq controller.QuizControllInterface, cfg configs.Pr
 	e.DELETE("/quiz/:id", uq.DeleteQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 	e.GET("/my-quiz", uq.GetAllMyQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 }
+
+func RouteQuestion(e *echo.Echo, uq controller.QuestionsControllInterface, cfg configs.ProgramConfig) { 
+	e.POST("/question/:id", uq.InsertQuestion(), echojwt.JWT([]byte(cfg.Secret)))
+}
