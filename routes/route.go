@@ -41,3 +41,6 @@ func RouteOption(e *echo.Echo, uq controller.OptionsControllInterface, cfg confi
 	e.DELETE("/option/:id", uq.DeleteOption(), echojwt.JWT([]byte(cfg.Secret)))
 }
 
+func RouteHistory(e *echo.Echo, uh controller.HistoryControllInterface, cfg configs.ProgramConfig) { 
+	e.POST("/aswering", uh.Answering(), echojwt.JWT([]byte(cfg.Secret)))
+}

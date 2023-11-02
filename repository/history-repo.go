@@ -1,1 +1,92 @@
 package repository
+
+import (
+	"quiz/model"
+
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
+)
+
+type HistoryInterface interface {
+	AnswersInsert(answers []model.Answers, user_id uint, quiz_id uint) (*model.HistoryScore, int)
+	
+}
+
+type HistoryModel struct {
+	db *gorm.DB
+}
+
+func (qm *HistoryModel) Init(db *gorm.DB) {
+	qm.db = db
+}
+
+func NewHistoryModel(db *gorm.DB) HistoryInterface {
+	return &HistoryModel{
+		db: db,
+	}
+}
+
+func (hm *HistoryModel) AnswersInsert(answers []model.Answers, user_id uint, quiz_id uint) (*model.HistoryScore, int) {
+
+	var historyScore model.HistoryScore
+
+	historyScore.User_id = user_id
+	historyScore.Quiz_id = quiz_id
+
+	if err := hm.db.Create(&historyScore).Error; err != nil {
+		logrus.Error("Repository: Insert data historyScore error, ", err.Error())
+		return nil, 1
+	}
+
+
+	questionId, optionId := model.GetOptionNQuestionIds(answers)
+
+	var questions []model.Questions
+	if err := hm.db.Where("id IN (?)", questionId).Find(&questions).Error; err != nil {
+		logrus.Error("Repository: select method question in answer data error, ", err.Error())
+		return nil, 1
+	}
+
+	var options []model.Options
+
+	if err := hm.db.Where("id IN (?)", optionId).Find(&options).Error; err != nil {
+		logrus.Error("Repository: select method option in answer data error, ", err.Error())
+		return nil, 1
+	}
+
+
+	scoreQuiz , historyAnswer := model.GetScore(options, questions, historyScore.ID)
+
+	if err := hm.db.Create(&historyAnswer).Error; err != nil {
+		logrus.Error("Repository: Insert data historyAnswer error, ", err.Error())
+		return nil, 1
+	}
+
+	var quiz model.Quiz
+
+	if err := hm.db.Select("title").Where("id = ?", historyScore.Quiz_id).Find(&quiz).Error; err != nil {
+		logrus.Error("Repository: select method title in answer data error, ", err.Error())
+		return nil, 1
+	}
+
+	var user model.Users
+
+	if err := hm.db.Select("name").Where("id = ?", historyScore.User_id).Find(&user).Error; err != nil {
+		logrus.Error("Repository: select method name in answer data error, ", err.Error())
+		return nil, 1
+	}
+
+	historyScore.Wrong_answer = scoreQuiz.Wrong_answer
+	historyScore.Right_answer = scoreQuiz.Right_answer
+	historyScore.Score = scoreQuiz.Score 
+	historyScore.Title = quiz.Title
+	historyScore.Name = user.Name
+
+	var qry = hm.db.Save(&historyScore)
+	if err := qry.Error; err != nil {
+		logrus.Error("Repository: Save method historyScore data error, ", err.Error())
+		return nil, 1
+	}
+	
+	return &historyScore , 0
+}
