@@ -12,6 +12,7 @@ type HistoryInterface interface {
 	GetAllMyHistoryScore(page int, pageSize int, userId uint, search string) ([]model.HistoryScore, int64, int)
 	GetAllHistoryScoreMyQuiz(page int, pageSize int, quizId uint, search string, userId uint) ([]model.HistoryScore, int64, int)
 	GetHistoryScoreById(historyId uint, userId uint) (*model.HistoryScore, int)
+	GetAllHistoryAnswer(page int, pageSize int, historyId uint, userId uint) ([]model.HistoryAnswers, int64, int)
 }
 
 type HistoryModel struct {
@@ -172,4 +173,45 @@ func (hm *HistoryModel) GetHistoryScoreById(historyId uint, userId uint) (*model
 	}
 
 	return  &HistoryAnswers, 0
+}
+
+func (hm *HistoryModel) GetAllHistoryAnswer(page int, pageSize int, historyId uint, userId uint) ([]model.HistoryAnswers, int64, int) {
+	var listHistoryAnswers []model.HistoryAnswers
+	var count int64
+
+	if page <= 0 {
+        return nil, 0, 1
+    }
+
+	var history = model.HistoryScore{}
+	if err := hm.db.First(&history, historyId).Error; err != nil {
+		logrus.Error("Repository: Select method historyScore data error, ", err.Error())
+		return nil, 0, 2
+	}
+
+	var quiz = model.Quiz{}
+	if err := hm.db.First(&quiz, history.Quiz_id).Error; err != nil {
+		logrus.Error("Repository: Select method Quiz in history data error, ", err.Error())
+		return nil, 0, 2
+	}
+
+	if userId != quiz.User_id || userId != history.User_id{
+		logrus.Error("Repository:  HistoryAnswer, Unauthorized")
+		return  nil, 0, 4
+	}
+
+	offset := (page - 1) * pageSize
+
+	if err := hm.db.Offset(offset).Limit(pageSize).Where("history_id = ?", historyId).Find(&listHistoryAnswers).Count(&count).Error; err != nil {
+		
+		logrus.Error("Repository: Select method Get HistoryAnswer data error, ", err.Error())
+		return nil, 0, 2
+	}
+
+	if count == 0 {
+		logrus.Error("Repository: not found HistoryAnswer")
+		return nil, 0, 3
+	}
+
+	return  listHistoryAnswers, count, 0
 }
