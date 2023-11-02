@@ -11,6 +11,7 @@ type HistoryInterface interface {
 	AnswersInsert(answers []model.Answers, user_id uint, quiz_id uint) (*model.HistoryScore, int)
 	GetAllMyHistoryScore(page int, pageSize int, userId uint, search string) ([]model.HistoryScore, int64, int)
 	GetAllHistoryScoreMyQuiz(page int, pageSize int, quizId uint, search string, userId uint) ([]model.HistoryScore, int64, int)
+	GetHistoryScoreById(historyId uint, userId uint) (*model.HistoryScore, int)
 }
 
 type HistoryModel struct {
@@ -149,4 +150,26 @@ func (hm *HistoryModel) GetAllHistoryScoreMyQuiz(page int, pageSize int, quizId 
 	}
 
 	return listHistoryScore, count, 0
+}
+
+func (hm *HistoryModel) GetHistoryScoreById(historyId uint, userId uint) (*model.HistoryScore, int) {
+	var HistoryAnswers model.HistoryScore
+
+	if err := hm.db.First(&HistoryAnswers, historyId).Error; err != nil {
+		logrus.Error("Repository: Select method HistoryScore data error, ", err.Error())
+		return nil, 1
+	}
+
+	var quiz = model.Quiz{}
+	if err := hm.db.First(&quiz, HistoryAnswers.Quiz_id).Error; err != nil {
+		logrus.Error("Repository: Select method quiz in HistoryScore data error, ", err.Error())
+		return nil, 1
+	}
+
+	if userId != quiz.User_id || userId != HistoryAnswers.User_id{
+		logrus.Error("Repository: HistoryScore, Unauthorized")
+		return  nil, 2
+	}
+
+	return  &HistoryAnswers, 0
 }

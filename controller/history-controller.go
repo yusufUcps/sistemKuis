@@ -15,6 +15,8 @@ type HistoryControllInterface interface {
 	Answering() echo.HandlerFunc
 	GetAllMyHistoryScore() echo.HandlerFunc
 	GetAllHistoryScoreMyQuiz() echo.HandlerFunc
+	GetHistoryScoreById() echo.HandlerFunc
+	
 }
 
 type HistoryController struct {
@@ -142,5 +144,32 @@ func (hc *HistoryController) GetAllHistoryScoreMyQuiz() echo.HandlerFunc {
 		resPaging := model.ConvertPaging(page, pageSize, count) 
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Get Get All History Score MyQuiz", resConvert, resPaging))
+	}
+}
+
+func (hc *HistoryController) GetHistoryScoreById() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var token = c.Get("user")
+		id := hc.jwt.ExtractToken(token.(*jwt.Token))
+		
+		historyId, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid historyId", nil, nil))
+		}
+
+		res, errCase := hc.repository.GetHistoryScoreById(uint(historyId),id)
+
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Get history Score", nil, nil))
+		}
+
+		if errCase == 2 {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("You cannot Get this History", nil, nil))
+		}
+
+		resConvert := model.ConvertHistoryScore(res)
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Get history score", resConvert, nil))
 	}
 }
