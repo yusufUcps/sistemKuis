@@ -19,7 +19,7 @@ type HistoryControllInterface interface {
 	GetAllHistoryAnswer() echo.HandlerFunc
 	ExportMyHistoryScore() echo.HandlerFunc
 	ExportHistoryScoreMyQuiz() echo.HandlerFunc
-	
+	ExportHistoryAnswer() echo.HandlerFunc
 }
 
 type HistoryController struct {
@@ -288,5 +288,42 @@ func (hc *HistoryController) ExportHistoryScoreMyQuiz() echo.HandlerFunc {
 		}
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Export History Score Quiz", resExport, nil))
+	}
+}
+
+func (hc *HistoryController) ExportHistoryAnswer() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		
+		var token = c.Get("user")
+		id := hc.jwt.ExtractToken(token.(*jwt.Token))
+
+		hitoriId, err := strconv.Atoi(c.QueryParam("hitoriId"))
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid hitoriId", nil, nil))
+		}
+		
+		res, errCase := hc.repository.ExHistoryAnswer(uint(hitoriId), id)
+
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Get All My History Score", nil, nil))
+		}
+
+		if errCase == 2 {
+			return c.JSON(http.StatusNotFound, helper.FormatResponse("History Score not Found", nil, nil))
+		}
+
+		if errCase == 3 {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("You cannot export this History", nil, nil))
+		}
+
+		resConvert := model.ConvertHistoryAnswer(res)
+
+		resExport, err := hc.Export.ExportHistoryAnswer(resConvert, id)
+
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("failed to export", nil, nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Succes export HistoryAnswer", resExport, nil))
 	}
 }
