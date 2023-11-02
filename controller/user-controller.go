@@ -47,10 +47,6 @@ func (uc *UserController) Register() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed Register User", nil, nil))
 		}
 
-		if errCase == 3 {
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil, nil))
-		}
-
 		var jwtToken = uc.jwt.GenerateJWT(res.ID)
 		if jwtToken == "" {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process jwt token", nil, nil))

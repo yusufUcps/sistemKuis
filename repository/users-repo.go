@@ -67,7 +67,7 @@ func (um *UsersModel) Login(email string, password string) (*model.Users, int) {
 
 	if password == ""{
 		logrus.Error("Repository: password nil")
-		return nil, 3
+		return nil, 2
 	}
 
 	if err := helper.ComparePassword(user.Password, password); err != nil {
