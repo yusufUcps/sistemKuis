@@ -10,6 +10,7 @@ import (
 type QuestionsInterface interface {
 	InsertQuestion(newQuestion model.Questions) (*model.Questions, int)
 	GetAllQuestionsFromQuiz(page int, pageSize int, quizId uint) ([]model.Questions, int64, int)
+	GetQuestionByID(id uint) (*model.Questions, int)
 }
 
 type QuestionsModel struct {
@@ -43,7 +44,7 @@ func (qm *QuestionsModel) InsertQuestion(newQuestion model.Questions) (*model.Qu
 	return &question , 0
 }
 
-func (qm *QuestionsModel) (page int, pageSize int, quizId uint) ([]model.Questions, int64, int) {
+func (qm *QuestionsModel) GetAllQuestionsFromQuiz(page int, pageSize int, quizId uint) ([]model.Questions, int64, int) {
 	var listQuestions []model.Questions
 	var count int64
 
@@ -65,4 +66,16 @@ func (qm *QuestionsModel) (page int, pageSize int, quizId uint) ([]model.Questio
 	}
 
 	return listQuestions, count, 0
+}
+
+func (qm *QuestionsModel) GetQuestionByID(id uint) (*model.Questions, int) {
+
+	var questions model.Questions
+
+	if err := qm.db.Preload("Options").First(&questions, id).Error; err != nil {
+		logrus.Error("Repository: Get data Questions error, ", err.Error())
+		return nil, 1
+	}
+
+	return &questions, 0
 }
