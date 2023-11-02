@@ -91,6 +91,7 @@ func (um *UsersModel) MyProfile(id uint) (*model.Users, int) {
 
 func (um *UsersModel) UpdateMyProfile(updateUser model.Users) (*model.Users, int) {
 	var user = model.Users{}
+	var count int64
 
 	if err := um.db.First(&user, updateUser.ID).Error; err != nil {
 		logrus.Error("Repository: Select method UpdateMyProfile data error, ", err.Error())
@@ -99,13 +100,17 @@ func (um *UsersModel) UpdateMyProfile(updateUser model.Users) (*model.Users, int
 
 	if user.Email != updateUser.Email {
 		var existingUser = model.Users{}
-		if err := um.db.Where("email = ?", updateUser.Email).First(&existingUser).Error; err == nil {
-			logrus.Error("Repository: UpdateMyProfile, Email already registered", err.Error())
+		if err := um.db.Where("email = ?", updateUser.Email).First(&existingUser).Count(&count).Error; err != nil {
+			logrus.Error("Repository: UpdateMyProfile, Error checking existing email", err.Error())
+			return nil, 1
+		}
+		if count > 0 {
+			logrus.Error("Repository: UpdateMyProfile, Email already registered")
 			return nil, 2
 		}
 	}
 
-	if updateUser.Password != ""{
+	if updateUser.Password != "" {
 		hashedPassword := helper.HashPassword(updateUser.Password)
 		user.Password = hashedPassword
 	}
@@ -121,5 +126,6 @@ func (um *UsersModel) UpdateMyProfile(updateUser model.Users) (*model.Users, int
 
 	return &user, 0
 }
+
 
 
