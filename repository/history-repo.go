@@ -10,6 +10,7 @@ import (
 type HistoryInterface interface {
 	AnswersInsert(answers []model.Answers, user_id uint, quiz_id uint) (*model.HistoryScore, int)
 	GetAllMyHistoryScore(page int, pageSize int, userId uint, search string) ([]model.HistoryScore, int64, int)
+	GetAllHistoryScoreMyQuiz(page int, pageSize int, quizId uint, search string, userId uint) ([]model.HistoryScore, int64, int)
 }
 
 type HistoryModel struct {
@@ -109,6 +110,41 @@ func (hm *HistoryModel) GetAllMyHistoryScore(page int, pageSize int, userId uint
 
 	if count == 0 {
 		logrus.Error("Repository: not found MyHistoryScore")
+		return nil, 0, 3
+	}
+
+	return listHistoryScore, count, 0
+}
+
+func (hm *HistoryModel) GetAllHistoryScoreMyQuiz(page int, pageSize int, quizId uint, search string, userId uint) ([]model.HistoryScore, int64, int) {
+	var listHistoryScore []model.HistoryScore
+	var count int64
+
+	if page <= 0 {
+        return nil, 0, 1
+    }
+
+	offset := (page - 1) * pageSize
+
+	var quiz = model.Quiz{}
+	if err := hm.db.First(&quiz, quizId).Error; err != nil {
+		logrus.Error("Repository: Select method UpdateQuiz data error, ", err.Error())
+		return nil, 0, 2
+	}
+
+	if userId != quiz.User_id{
+		logrus.Error("Repository: GetAllHistoryScoreMyQuiz, Unauthorized")
+		return  nil, 0, 4
+	}
+
+	if err := hm.db.Offset(offset).Limit(pageSize).Where("quiz_id = ? AND name LIKE ?", quizId, "%"+search+"%").Find(&listHistoryScore).Count(&count).Error; err != nil {
+		
+		logrus.Error("Repository: Select method Get listHistoryScoreMyQuiz data error, ", err.Error())
+		return nil, 0, 2
+	}
+
+	if count == 0 {
+		logrus.Error("Repository: not found HistoryScoreMyQuiz")
 		return nil, 0, 3
 	}
 

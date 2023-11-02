@@ -14,7 +14,7 @@ import (
 type HistoryControllInterface interface {
 	Answering() echo.HandlerFunc
 	GetAllMyHistoryScore() echo.HandlerFunc
-	
+	GetAllHistoryScoreMyQuiz() echo.HandlerFunc
 }
 
 type HistoryController struct {
@@ -96,5 +96,51 @@ func (hc *HistoryController) GetAllMyHistoryScore() echo.HandlerFunc {
 		resPaging := model.ConvertPaging(page, pageSize, count) 
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Get All My History Score", resConvert, resPaging))
+	}
+}
+
+func (hc *HistoryController) GetAllHistoryScoreMyQuiz() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		search := c.QueryParam("search")
+		var token = c.Get("user")
+		id := hc.jwt.ExtractToken(token.(*jwt.Token))
+		quizId, err := strconv.Atoi(c.QueryParam("quizId"))
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid quizId", nil, nil))
+		}
+
+		page, err := strconv.Atoi(c.QueryParam("page"))
+			if err != nil {
+    		page = 1
+		}
+
+		pageSize, err := strconv.Atoi(c.QueryParam("pageSize")) 
+			if err != nil {
+    		pageSize = 10
+		}
+		
+		res, count, errCase := hc.repository.GetAllHistoryScoreMyQuiz(page, pageSize, uint(quizId), search, id)
+
+		if errCase == 1 {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid page", nil, nil))
+		}
+
+		if errCase == 2 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Get All History Score MyQuiz", nil, nil))
+		}
+
+		if errCase == 3 {
+			return c.JSON(http.StatusNotFound, helper.FormatResponse("HistoryScore not Found", nil, nil))
+		}
+
+		if errCase == 4 {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("You cannot Get this History", nil, nil))
+		}
+
+		resConvert := model.ConvertAllMyHitoryScoreRes(res)
+
+		resPaging := model.ConvertPaging(page, pageSize, count) 
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Get Get All History Score MyQuiz", resConvert, resPaging))
 	}
 }
