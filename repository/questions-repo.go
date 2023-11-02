@@ -11,6 +11,7 @@ type QuestionsInterface interface {
 	InsertQuestion(newQuestion model.Questions) (*model.Questions, int)
 	GetAllQuestionsFromQuiz(page int, pageSize int, quizId uint) ([]model.Questions, int64, int)
 	GetQuestionByID(id uint) (*model.Questions, int)
+	UpdateQuestion(updateQuestions model.Questions, userId uint) (*model.Questions, int)
 }
 
 type QuestionsModel struct {
@@ -74,6 +75,39 @@ func (qm *QuestionsModel) GetQuestionByID(id uint) (*model.Questions, int) {
 
 	if err := qm.db.Preload("Options").First(&questions, id).Error; err != nil {
 		logrus.Error("Repository: Get data Questions error, ", err.Error())
+		return nil, 1
+	}
+
+	return &questions, 0
+}
+
+func (qm *QuestionsModel) UpdateQuestion(updateQuestions model.Questions, userId uint) (*model.Questions, int) {
+	var questions = model.Questions{}
+	var quiz = model.Quiz{}
+
+	if err := qm.db.First(&questions, updateQuestions.ID).Error; err != nil {
+		logrus.Error("Repository: Select method updateQuestions data error, ", err.Error())
+		return nil, 1
+	}
+
+	if err := qm.db.First(&quiz, questions.Quiz_id).Error; err != nil {
+		logrus.Error("Repository: Select method quiz in updateQuestions data error, ", err.Error())
+		return nil, 1
+	}
+
+	if userId != quiz.User_id {
+		logrus.Error("Repository: UpdateQuiz, Unauthorized")
+		return nil, 2
+
+	}
+
+	questions.Quiz_id = updateQuestions.Quiz_id
+	questions.Question = updateQuestions.Question
+	questions.Options  = updateQuestions.Options
+
+	var qry = qm.db.Save(&questions)
+	if err := qry.Error; err != nil {
+		logrus.Error("Repository: Save method updateQuestions data error, ", err.Error())
 		return nil, 1
 	}
 

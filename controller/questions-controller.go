@@ -15,6 +15,7 @@ type QuestionsControllInterface interface {
 	InsertQuestion() echo.HandlerFunc
 	GetAllQuestionsQuiz() echo.HandlerFunc
 	GetQuetionByID() echo.HandlerFunc
+	UpdateQuestion() echo.HandlerFunc
 }
 
 type QuestionsController struct {
@@ -116,5 +117,40 @@ func (qc *QuestionsController) GetQuetionByID() echo.HandlerFunc {
 		resConvert := model.ConvertQuestionsRes(res)
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Get Question Quiz", resConvert, nil))
+	}
+}
+
+func (qc *QuestionsController) UpdateQuestion() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var token = c.Get("user")
+		questionId, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid questionId", nil, nil))
+		}
+
+		id := qc.jwt.ExtractToken(token.(*jwt.Token))
+
+		var input = model.Questions{}
+		if err := c.Bind(&input); err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil, nil))
+		}
+
+		input.ID= uint(questionId)
+
+		res, errCase := qc.repository.UpdateQuestion(input, id)
+
+
+		if errCase == 2 {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("You cannot update this question", nil, nil))
+		}
+
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("failed to update question", nil, nil))
+		}
+
+		resConvert := model.ConvertQuestionsRes(res)
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("success update question", resConvert, nil))
 	}
 }
