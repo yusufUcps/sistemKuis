@@ -12,6 +12,7 @@ type OptionsInterface interface {
 	GetAllOptionsFromQuiz(questionsId uint) ([]model.Options, int)
 	GetOptionByID(id uint) (*model.Options, int)
 	UpdateOption(updateOptions model.Options, userId uint) (*model.Options, int)
+	DeleteOption(questionsId uint, userId uint)  int
 }
 
 type OptionsModel struct {
@@ -104,4 +105,39 @@ func (om *OptionsModel) UpdateOption(updateOptions model.Options, userId uint) (
 	}
 
 	return &options, 0
+}
+
+func (om *OptionsModel) DeleteOption(questionsId uint, userId uint)  int {
+
+	var options = model.Options{}
+	var questions = model.Questions{}
+	var quiz = model.Quiz{}
+
+	if err := om.db.First(&options, questionsId).Error; err != nil {
+		logrus.Error("Repository: Select method updateOptions data error, ", err.Error())
+		return 1
+	}
+	
+	if err := om.db.First(&questions, options.Question_id).Error; err != nil {
+		logrus.Error("Repository: Select method updateOptions data error, ", err.Error())
+		return 1
+	}
+
+	if err := om.db.First(&quiz, questions.Quiz_id).Error; err != nil {
+		logrus.Error("Repository: Select method quiz in updateOptions data error, ", err.Error())
+		return 1
+	}
+
+	if userId != quiz.User_id {
+		logrus.Error("Repository: UpdateOptions, Unauthorized")
+		return 2
+
+	}
+
+	if err := om.db.Delete(&quiz).Error; err != nil {
+		logrus.Error("Repository: Delete method DeleteOptiondata error, ", err.Error())
+		return  1
+	}
+
+	return  0
 }

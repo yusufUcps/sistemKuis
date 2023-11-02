@@ -16,7 +16,7 @@ type OptionsControllInterface interface {
 	GetAllOptionsQuiz() echo.HandlerFunc
 	GetOptionByID() echo.HandlerFunc
 	UpdateOption() echo.HandlerFunc
-	
+	DeleteOption() echo.HandlerFunc
 }
 
 type OptionsController struct {
@@ -135,5 +135,32 @@ func (op *OptionsController) UpdateOption() echo.HandlerFunc {
 		resConvert := model.ConvertOptionsRes(res)
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("success update option", resConvert, nil))
+	}
+}
+
+func (op *OptionsController) DeleteOption() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var token = c.Get("user")
+		optionId, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid quizId", nil, nil))
+		}
+
+		id := op.jwt.ExtractToken(token.(*jwt.Token))
+
+		option_id := uint(optionId)
+
+		errCase := op.repository.DeleteOption(option_id, id)
+
+		if errCase == 2 {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("You cannot Delete this Option", nil, nil))
+		}
+
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("failed to Delete Option", nil, nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("success Delete Option", nil, nil))
 	}
 }

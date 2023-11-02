@@ -38,5 +38,6 @@ func RouteOption(e *echo.Echo, uq controller.OptionsControllInterface, cfg confi
 	e.GET("/options", uq.GetAllOptionsQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 	e.GET("/option/:id", uq.GetOptionByID(), echojwt.JWT([]byte(cfg.Secret)))
 	e.PUT("/option/:id", uq.UpdateOption(), echojwt.JWT([]byte(cfg.Secret)))
+	e.DELETE("/option/:id", uq.DeleteOption(), echojwt.JWT([]byte(cfg.Secret)))
 }
 
