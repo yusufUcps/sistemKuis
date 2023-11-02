@@ -32,3 +32,9 @@ func RouteQuestion(e *echo.Echo, uq controller.QuestionsControllInterface, cfg c
 	e.POST("/generate", uq.GenerateQuestion(), echojwt.JWT([]byte(cfg.Secret)))
 	e.DELETE("/question/:id", uq.DeleteQuestion(), echojwt.JWT([]byte(cfg.Secret)))
 }
+
+func RouteOption(e *echo.Echo, uq controller.OptionsControllInterface, cfg configs.ProgramConfig) { 
+	e.POST("/option", uq.InsertOption(), echojwt.JWT([]byte(cfg.Secret)))
+
+}
+
