@@ -22,16 +22,20 @@ func main() {
 
 	jwtInterface := helper.New(config.Secret)
 	openAiInterface := helper.NewOpenAi(config.OpenAiKey)
+	ExportInterface := helper.NewExport(config.ClientEmail, config.PrivateKey, config.FolderId)
 
 	userModel := repository.NewUsersModel(db)
 	quizModel := repository.NewQuizModel(db)
 	questionModel := repository.NewQuestionsModel(db)
 	optionModel := repository.NewOptionsModel(db)
+	historyModel := repository.NewHistoryModel(db)
 
 	userControll := controller.NewUserControllInterface(userModel, jwtInterface)
 	quizControll := controller.NewQuizControllInterface(quizModel, jwtInterface)
 	questionControll := controller.NewQuestionsControllInterface(questionModel, jwtInterface, openAiInterface)
 	optionControll := controller.NewOptionsControllInterface(optionModel, jwtInterface)
+	historyControll := controller.NewHistoryControllInterface(historyModel, jwtInterface, ExportInterface)
+
 
 	e.Pre(middleware.RemoveTrailingSlash())
 
@@ -45,6 +49,7 @@ func main() {
 	routes.RouteQuiz(e, quizControll, *config)
 	routes.RouteQuestion(e, questionControll, *config)
 	routes.RouteOption(e, optionControll, *config)
+	routes.RouteHistory(e, historyControll, *config)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.ServerPort)).Error())
 }
