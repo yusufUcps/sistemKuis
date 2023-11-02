@@ -26,4 +26,5 @@ func RouteQuiz(e *echo.Echo, uq controller.QuizControllInterface, cfg configs.Pr
 
 func RouteQuestion(e *echo.Echo, uq controller.QuestionsControllInterface, cfg configs.ProgramConfig) { 
 	e.POST("/question/:id", uq.InsertQuestion(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/questions", uq.GetAllQuestionsQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 }
