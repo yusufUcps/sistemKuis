@@ -14,6 +14,7 @@ import (
 type OptionsControllInterface interface {
 	InsertOption() echo.HandlerFunc
 	GetAllOptionsQuiz() echo.HandlerFunc
+	GetOptionByID() echo.HandlerFunc
 	
 }
 
@@ -77,5 +78,26 @@ func (op *OptionsController) GetAllOptionsQuiz() echo.HandlerFunc {
 		resConvert := model.ConvertAllOptions(res)
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Get All Option", resConvert,nil))
+	}
+}
+
+func (op *OptionsController) GetOptionByID() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		
+		optionId, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid optionId", nil, nil))
+		}
+
+		res, errCase := op.repository.GetOptionByID(uint(optionId))
+
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Get Option Question", nil, nil))
+		}
+
+		resConvert := model.ConvertOptionsRes(res)
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Get Option Question", resConvert, nil))
 	}
 }

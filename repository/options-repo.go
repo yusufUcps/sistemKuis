@@ -10,6 +10,7 @@ import (
 type OptionsInterface interface {
 	InsertOption(newOptions model.Options) (*model.Options, int)
 	GetAllOptionsFromQuiz(questionsId uint) ([]model.Options, int)
+	GetOptionByID(id uint) (*model.Options, int)
 }
 
 type OptionsModel struct {
@@ -51,4 +52,16 @@ func (om *OptionsModel) GetAllOptionsFromQuiz(questionsId uint) ([]model.Options
 	}
 
 	return listOptions, 0
+}
+
+func (om *OptionsModel) GetOptionByID(id uint) (*model.Options, int) {
+
+	var options model.Options
+
+	if err := om.db.First(&options, id).Error; err != nil {
+		logrus.Error("Repository: Get data options error, ", err.Error())
+		return nil, 1
+	}
+
+	return &options, 0
 }
