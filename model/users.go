@@ -19,8 +19,6 @@ type UserRegisterRes struct {
     Updatad_at time.Time`json:"updated_at" `
     Name     string `json:"name" `
     Email    string `json:"email" `
-    Password string `json:"password" `
-    Token    string `json:"token" `
 }
 
 type MyProfileRes struct {
@@ -29,7 +27,6 @@ type MyProfileRes struct {
     Updatad_at time.Time`json:"updated_at" `
     Name     string `json:"name" `
     Email    string `json:"email" `
-    Password string `json:"password" `
 }
 
 func ConvertRegisterRes(user *Users, token string) *UserRegisterRes {
@@ -39,8 +36,6 @@ func ConvertRegisterRes(user *Users, token string) *UserRegisterRes {
         Updatad_at: user.UpdatedAt,
         Name:       user.Name,
         Email:      user.Email,
-        Password:   user.Password,
-        Token:      token,
     }
     return &registerRes
 }
@@ -52,7 +47,6 @@ func ConvertMyProfileRes(user *Users) *MyProfileRes {
         Updatad_at: user.UpdatedAt,
         Name:       user.Name,
         Email:      user.Email,
-        Password:      user.Password,
     }
     return &myProfileRes
 }
