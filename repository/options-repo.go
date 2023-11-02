@@ -98,7 +98,7 @@ func (om *OptionsModel) UpdateOption(updateOptions model.Options, userId uint) (
 	options.Value = updateOptions.Value
 	options.Is_right = updateOptions.Is_right
 
-	var qry = om.db.Save(&questions)
+	var qry = om.db.Save(&options)
 	if err := qry.Error; err != nil {
 		logrus.Error("Repository: Save method updateOptions data error, ", err.Error())
 		return nil, 1

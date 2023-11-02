@@ -55,9 +55,9 @@ func (op *OptionsController) InsertOption() echo.HandlerFunc {
 func (op *OptionsController) GetAllOptionsQuiz() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		
-		questionsId, err := strconv.Atoi(c.QueryParam("QuestionId"))
+		questionsId, err := strconv.Atoi(c.QueryParam("questionId"))
 			if err != nil {
-				return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid QuestionId", nil, nil))
+				return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid questionId", nil, nil))
 		}
 
 		options_id := uint(questionsId) 

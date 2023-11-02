@@ -34,6 +34,7 @@ func ConvertOptionsRes(option *Options) *OptionsRes {
         Id:         option.ID,
         Created_at: option.CreatedAt,
         Updatad_at: option.UpdatedAt,
+		Question_id: option.Question_id,
 		Value:		option.Value,
 		Is_right: 	option.Is_right,
     }
