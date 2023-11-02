@@ -15,6 +15,7 @@ type OptionsControllInterface interface {
 	InsertOption() echo.HandlerFunc
 	GetAllOptionsQuiz() echo.HandlerFunc
 	GetOptionByID() echo.HandlerFunc
+	UpdateOption() echo.HandlerFunc
 	
 }
 
@@ -99,5 +100,40 @@ func (op *OptionsController) GetOptionByID() echo.HandlerFunc {
 		resConvert := model.ConvertOptionsRes(res)
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Get Option Question", resConvert, nil))
+	}
+}
+
+func (op *OptionsController) UpdateOption() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var token = c.Get("user")
+		optionId, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid optionId", nil, nil))
+		}
+
+		id := op.jwt.ExtractToken(token.(*jwt.Token))
+
+		var input = model.Options{}
+		if err := c.Bind(&input); err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil, nil))
+		}
+
+		input.ID= uint(optionId)
+
+		res, errCase := op.repository.UpdateOption(input, id)
+
+
+		if errCase == 2 {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("You cannot update this option", nil, nil))
+		}
+
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("failed to update option", nil, nil))
+		}
+
+		resConvert := model.ConvertOptionsRes(res)
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("success update option", resConvert, nil))
 	}
 }

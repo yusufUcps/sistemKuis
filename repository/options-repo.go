@@ -11,6 +11,7 @@ type OptionsInterface interface {
 	InsertOption(newOptions model.Options) (*model.Options, int)
 	GetAllOptionsFromQuiz(questionsId uint) ([]model.Options, int)
 	GetOptionByID(id uint) (*model.Options, int)
+	UpdateOption(updateOptions model.Options, userId uint) (*model.Options, int)
 }
 
 type OptionsModel struct {
@@ -60,6 +61,45 @@ func (om *OptionsModel) GetOptionByID(id uint) (*model.Options, int) {
 
 	if err := om.db.First(&options, id).Error; err != nil {
 		logrus.Error("Repository: Get data options error, ", err.Error())
+		return nil, 1
+	}
+
+	return &options, 0
+}
+
+func (om *OptionsModel) UpdateOption(updateOptions model.Options, userId uint) (*model.Options, int) {
+	var options = model.Options{}
+	var questions = model.Questions{}
+	var quiz = model.Quiz{}
+
+	if err := om.db.First(&options, updateOptions.ID).Error; err != nil {
+		logrus.Error("Repository: Select method updateOptions data error, ", err.Error())
+		return nil, 1
+	}
+	
+	if err := om.db.First(&questions, options.Question_id).Error; err != nil {
+		logrus.Error("Repository: Select method updateOptions data error, ", err.Error())
+		return nil, 1
+	}
+
+	if err := om.db.First(&quiz, questions.Quiz_id).Error; err != nil {
+		logrus.Error("Repository: Select method quiz in updateOptions data error, ", err.Error())
+		return nil, 1
+	}
+
+	if userId != quiz.User_id {
+		logrus.Error("Repository: UpdateOptions, Unauthorized")
+		return nil, 2
+
+	}
+
+	options.Question_id = updateOptions.Question_id
+	options.Value = updateOptions.Value
+	options.Is_right = updateOptions.Is_right
+
+	var qry = om.db.Save(&questions)
+	if err := qry.Error; err != nil {
+		logrus.Error("Repository: Save method updateOptions data error, ", err.Error())
 		return nil, 1
 	}
 
