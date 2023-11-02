@@ -35,6 +35,6 @@ func RouteQuestion(e *echo.Echo, uq controller.QuestionsControllInterface, cfg c
 
 func RouteOption(e *echo.Echo, uq controller.OptionsControllInterface, cfg configs.ProgramConfig) { 
 	e.POST("/option", uq.InsertOption(), echojwt.JWT([]byte(cfg.Secret)))
-
+	e.GET("/options", uq.GetAllOptionsQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 }
 

@@ -13,6 +13,7 @@ import (
 
 type OptionsControllInterface interface {
 	InsertOption() echo.HandlerFunc
+	GetAllOptionsQuiz() echo.HandlerFunc
 	
 }
 
@@ -49,3 +50,32 @@ func (op *OptionsController) InsertOption() echo.HandlerFunc {
 	}
 }
 
+func (op *OptionsController) GetAllOptionsQuiz() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		
+		questionsId, err := strconv.Atoi(c.QueryParam("QuestionId"))
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid QuestionId", nil, nil))
+		}
+
+		options_id := uint(questionsId) 
+		
+		res, errCase := op.repository.GetAllOptionsFromQuiz(options_id)
+
+		if errCase == 1 {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("Invalid page", nil, nil))
+		}
+
+		if errCase == 2 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Get All Options Question", nil, nil))
+		}
+
+		if errCase == 3 {
+			return c.JSON(http.StatusNotFound, helper.FormatResponse("Options not Found", nil, nil))
+		}
+
+		resConvert := model.ConvertAllOptions(res)
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Get All Option", resConvert,nil))
+	}
+}
