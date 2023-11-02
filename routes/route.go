@@ -11,8 +11,8 @@ import (
 func RouteUser(e *echo.Echo, uc controller.UserControllInterface, cfg configs.ProgramConfig) {
 	e.POST("/user", uc.Register())
 	e.POST("/login", uc.Login())
-	e.GET("/my-profile", uc.MyProfile(), echojwt.JWT([]byte(cfg.Secret)))
-	e.PUT("/my-profile", uc.UpdateMyProfile(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/user", uc.MyProfile(), echojwt.JWT([]byte(cfg.Secret)))
+	e.PUT("/user", uc.UpdateMyProfile(), echojwt.JWT([]byte(cfg.Secret)))
 }
 
 func RouteQuiz(e *echo.Echo, uq controller.QuizControllInterface, cfg configs.ProgramConfig) {
