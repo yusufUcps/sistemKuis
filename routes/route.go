@@ -9,15 +9,15 @@ import (
 )
 
 func RouteUser(e *echo.Echo, uc controller.UserControllInterface, cfg configs.ProgramConfig) {
-	e.POST("/user", uc.Register())
-	e.POST("/login", uc.Login())
+	e.POST("/users", uc.Register())
+	e.POST("/users/login", uc.Login())
 	e.GET("/user", uc.MyProfile(), echojwt.JWT([]byte(cfg.Secret)))
 	e.PUT("/user", uc.UpdateMyProfile(), echojwt.JWT([]byte(cfg.Secret)))
 	e.DELETE("/user", uc.DeleteUser(), echojwt.JWT([]byte(cfg.Secret)))
 }
 
 func RouteQuiz(e *echo.Echo, uq controller.QuizControllInterface, cfg configs.ProgramConfig) {
-	e.POST("/quiz", uq.InsertQuiz(), echojwt.JWT([]byte(cfg.Secret)))
+	e.POST("/quizzes", uq.InsertQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 	e.GET("/quizzes", uq.GetAllQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 	e.GET("/quiz/:id", uq.GetQuizByID(), echojwt.JWT([]byte(cfg.Secret)))
 	e.PUT("/quiz/:id", uq.UpdateQuiz(), echojwt.JWT([]byte(cfg.Secret)))
@@ -30,7 +30,7 @@ func RouteQuestion(e *echo.Echo, uq controller.QuestionsControllInterface, cfg c
 	e.GET("/questions", uq.GetAllQuestionsQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 	e.GET("/question/:id", uq.GetQuetionByID(), echojwt.JWT([]byte(cfg.Secret)))
 	e.PUT("/question/:id", uq.UpdateQuestion(), echojwt.JWT([]byte(cfg.Secret)))
-	e.POST("/generate", uq.GenerateQuestion(), echojwt.JWT([]byte(cfg.Secret)))
+	e.POST("/questions/generate", uq.GenerateQuestion(), echojwt.JWT([]byte(cfg.Secret)))
 	e.DELETE("/question/:id", uq.DeleteQuestion(), echojwt.JWT([]byte(cfg.Secret)))
 }
 
