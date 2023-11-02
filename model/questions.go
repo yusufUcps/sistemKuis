@@ -66,4 +66,11 @@ func ConvertAllQuestionsQuiz(questions []Questions) []QuestionsResForQuiz {
 	return questionRes
 }
 
+func GetQuestionIDs(questions []Questions) []uint {
+	ids := make([]uint, len(questions))
+	for i, question := range questions {
+		ids[i] = question.ID
+	}
+	return ids
+}
 

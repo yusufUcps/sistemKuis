@@ -12,6 +12,7 @@ type QuestionsInterface interface {
 	GetAllQuestionsFromQuiz(page int, pageSize int, quizId uint) ([]model.Questions, int64, int)
 	GetQuestionByID(id uint) (*model.Questions, int)
 	UpdateQuestion(updateQuestions model.Questions, userId uint) (*model.Questions, int)
+	InsertGenerateQuestion(newQuestions []model.Questions) ([]model.Questions, int)
 }
 
 type QuestionsModel struct {
@@ -112,4 +113,21 @@ func (qm *QuestionsModel) UpdateQuestion(updateQuestions model.Questions, userId
 	}
 
 	return &questions, 0
+}
+
+func (qm *QuestionsModel) InsertGenerateQuestion(newQuestions []model.Questions) ([]model.Questions, int) {
+
+	if err := qm.db.Create(&newQuestions).Error; err != nil {
+		logrus.Error("Repository: Insert data Generate Questions error, ", err.Error())
+		return nil, 1
+	}
+
+	var questions []model.Questions
+
+	if err := qm.db.Preload("Options").Where("id IN (?)", model.GetQuestionIDs(newQuestions)).Find(&questions).Error; err != nil {
+		logrus.Error("Repository: Get data Generate Questions error, ", err.Error())
+		return nil, 1
+	}
+
+	return questions , 0
 }

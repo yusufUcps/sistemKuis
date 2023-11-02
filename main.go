@@ -21,6 +21,7 @@ func main() {
 	database.Migrate(db)
 
 	jwtInterface := helper.New(config.Secret)
+	openAiInterface := helper.NewOpenAi(config.OpenAiKey)
 
 	userModel := repository.NewUsersModel(db)
 	quizModel := repository.NewQuizModel(db)
@@ -28,7 +29,7 @@ func main() {
 
 	userControll := controller.NewUserControllInterface(userModel, jwtInterface)
 	quizControll := controller.NewQuizControllInterface(quizModel, jwtInterface)
-	questionControll := controller.NewQuestionsControllInterface(questionModel, jwtInterface)
+	questionControll := controller.NewQuestionsControllInterface(questionModel, jwtInterface, openAiInterface)
 
 	e.Pre(middleware.RemoveTrailingSlash())
 

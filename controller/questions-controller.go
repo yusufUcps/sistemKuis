@@ -14,20 +14,23 @@ import (
 type QuestionsControllInterface interface {
 	InsertQuestion() echo.HandlerFunc
 	GetAllQuestionsQuiz() echo.HandlerFunc
-	GetQuetionByID() echo.HandlerFunc
 	UpdateQuestion() echo.HandlerFunc
+	GetQuetionByID() echo.HandlerFunc
+	GenerateQuestion() echo.HandlerFunc
 }
 
 type QuestionsController struct {
 	repository repository.QuestionsInterface
 	jwt helper.JWTInterface
+	openAi helper.OpenAiInterface
 }
 
 
-func NewQuestionsControllInterface(r repository.QuestionsInterface, j helper.JWTInterface) QuestionsControllInterface {
+func NewQuestionsControllInterface(r repository.QuestionsInterface, j helper.JWTInterface, o helper.OpenAiInterface) QuestionsControllInterface {
 	return &QuestionsController{
 		repository: r,
 		jwt : j,
+		openAi: o,
 	}
 }
 
@@ -152,5 +155,32 @@ func (qc *QuestionsController) UpdateQuestion() echo.HandlerFunc {
 		resConvert := model.ConvertQuestionsRes(res)
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("success update question", resConvert, nil))
+	}
+}
+
+func (qc *QuestionsController) GenerateQuestion() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		
+		var newPromt model.OpenAiReq
+
+		if err := c.Bind(&newPromt); err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil, nil))
+		}
+		
+		newQuestions := qc.openAi.GenerateQuestions(newPromt)
+
+		if newQuestions == nil{
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Generate Qusetions", nil, nil))
+		}
+
+		res, errCase := qc.repository.InsertGenerateQuestion(newQuestions)
+
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Insert Generate Question", nil, nil))
+		}
+
+		resConvert := model.ConvertAllQuestionsQuiz(res)
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Generate Question", resConvert, nil))
 	}
 }
