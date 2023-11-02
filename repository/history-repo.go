@@ -39,11 +39,12 @@ func (hm *HistoryModel) AnswersInsert(answers []model.Answers, user_id uint, qui
 	historyScore.User_id = user_id
 	historyScore.Quiz_id = quiz_id
 
-	if err := hm.db.Create(&historyScore).Error; err != nil {
-		logrus.Error("Repository: Insert data historyScore error, ", err.Error())
-		return nil, 1
-	}
+	var quiz1 model.Quiz
 
+	if err := hm.db.First(&quiz1, quiz_id).Error; err != nil {
+		logrus.Error("Repository: Select method quiz in updateOptions data error, ", err.Error())
+		return nil,1
+	}
 
 	questionId, optionId := model.GetOptionNQuestionIds(answers)
 
@@ -57,6 +58,17 @@ func (hm *HistoryModel) AnswersInsert(answers []model.Answers, user_id uint, qui
 
 	if err := hm.db.Where("id IN (?)", optionId).Find(&options).Error; err != nil {
 		logrus.Error("Repository: select method option in answer data error, ", err.Error())
+		return nil, 1
+	}
+
+	if questions[1].Quiz_id != quiz_id{
+		logrus.Error("Repository: invalid quiz id, ")
+		return nil, 1
+	}
+
+
+	if err := hm.db.Create(&historyScore).Error; err != nil {
+		logrus.Error("Repository: Insert data historyScore error, ", err.Error())
 		return nil, 1
 	}
 

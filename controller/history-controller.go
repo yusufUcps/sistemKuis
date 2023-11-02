@@ -60,6 +60,10 @@ func (hc *HistoryController) Answering() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Insert Qusetion", nil, nil))
 		}
 
+		if errCase == 2 {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid quizId", nil, nil))
+		}
+
 		resConvert := model.ConvertHistoryScore(res)
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Succes save asswer", resConvert, nil))
@@ -144,7 +148,7 @@ func (hc *HistoryController) GetAllHistoryScoreMyQuiz() echo.HandlerFunc {
 			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("You cannot Get this History", nil, nil))
 		}
 
-		resConvert := model.ConvertAllMyHitoryScoreRes(res)
+		resConvert := model.ConvertAllHistoryScoreMyQuizRes(res)
 
 		resPaging := model.ConvertPaging(page, pageSize, count) 
 
@@ -297,22 +301,22 @@ func (hc *HistoryController) ExportHistoryAnswer() echo.HandlerFunc {
 		var token = c.Get("user")
 		id := hc.jwt.ExtractToken(token.(*jwt.Token))
 
-		hitoriId, err := strconv.Atoi(c.QueryParam("hitoriId"))
+		hitoriId, err := strconv.Atoi(c.QueryParam("historyId"))
 			if err != nil {
-				return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid hitoriId", nil, nil))
+				return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid historyId", nil, nil))
 		}
 		
 		res, errCase := hc.repository.ExHistoryAnswer(uint(hitoriId), id)
 
 		if errCase == 1 {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Get All My History Score", nil, nil))
-		}
-
-		if errCase == 2 {
-			return c.JSON(http.StatusNotFound, helper.FormatResponse("History Score not Found", nil, nil))
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Get All My History Answer", nil, nil))
 		}
 
 		if errCase == 3 {
+			return c.JSON(http.StatusNotFound, helper.FormatResponse("History Answer not Found", nil, nil))
+		}
+
+		if errCase == 2 {
 			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("You cannot export this History", nil, nil))
 		}
 

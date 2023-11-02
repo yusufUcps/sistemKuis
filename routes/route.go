@@ -17,11 +17,11 @@ func RouteUser(e *echo.Echo, uc controller.UserControllInterface, cfg configs.Pr
 
 func RouteQuiz(e *echo.Echo, uq controller.QuizControllInterface, cfg configs.ProgramConfig) {
 	e.POST("/quiz", uq.InsertQuiz(), echojwt.JWT([]byte(cfg.Secret)))
-	e.GET("/quiz", uq.GetAllQuiz(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/quizzes", uq.GetAllQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 	e.GET("/quiz/:id", uq.GetQuizByID(), echojwt.JWT([]byte(cfg.Secret)))
 	e.PUT("/quiz/:id", uq.UpdateQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 	e.DELETE("/quiz/:id", uq.DeleteQuiz(), echojwt.JWT([]byte(cfg.Secret)))
-	e.GET("/my-quiz", uq.GetAllMyQuiz(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/quiz/me", uq.GetAllMyQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 }
 
 func RouteQuestion(e *echo.Echo, uq controller.QuestionsControllInterface, cfg configs.ProgramConfig) { 
@@ -42,12 +42,12 @@ func RouteOption(e *echo.Echo, uq controller.OptionsControllInterface, cfg confi
 }
 
 func RouteHistory(e *echo.Echo, uh controller.HistoryControllInterface, cfg configs.ProgramConfig) { 
-	e.POST("/aswering", uh.Answering(), echojwt.JWT([]byte(cfg.Secret)))
-	e.GET("/history-score", uh.GetAllMyHistoryScore(), echojwt.JWT([]byte(cfg.Secret)))
-	e.GET("/history-score/quiz", uh.GetAllHistoryScoreMyQuiz(), echojwt.JWT([]byte(cfg.Secret)))
-	e.GET("/history-score/:id", uh.GetHistoryScoreById(), echojwt.JWT([]byte(cfg.Secret)))
-	e.GET("/history-answer", uh.GetAllHistoryAnswer(), echojwt.JWT([]byte(cfg.Secret)))
-	e.GET("/export/history-score", uh.ExportMyHistoryScore(), echojwt.JWT([]byte(cfg.Secret)))
-	e.GET("/export/history-score/quiz", uh.ExportHistoryScoreMyQuiz(), echojwt.JWT([]byte(cfg.Secret)))
-	e.GET("/export/history-answer", uh.ExportHistoryAnswer(), echojwt.JWT([]byte(cfg.Secret)))
+	e.POST("/history/answers", uh.Answering(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/history/score", uh.GetAllMyHistoryScore(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/history/score/quiz", uh.GetAllHistoryScoreMyQuiz(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/history/score/:id", uh.GetHistoryScoreById(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/history/answer", uh.GetAllHistoryAnswer(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/history/score/export", uh.ExportMyHistoryScore(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/history/score/quiz/export", uh.ExportHistoryScoreMyQuiz(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/history/answer/export", uh.ExportHistoryAnswer(), echojwt.JWT([]byte(cfg.Secret)))
 }

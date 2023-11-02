@@ -127,6 +127,8 @@ func ConvertAllHistoryScoreMyQuizRes(histories []HistoryScore) []HistoryScoreMyQ
     for _, history := range histories {
         historyRes := HistoryScoreMyQuizRes{
             Id:           history.ID,
+			User_id: 	  history.User_id,
+			Name: 		  history.Name,
             Right_answer: history.Right_answer,
             Wrong_answer: history.Wrong_answer,
             Score:        history.Score,
