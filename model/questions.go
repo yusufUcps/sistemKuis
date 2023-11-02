@@ -19,7 +19,7 @@ type QuestionsRes struct{
     Updatad_at 		time.Time`json:"updated_at" `
 	Quiz_id uint `json:"quiz_id" `
 	Question    string `json:"question" `
-	Options []Options `json:"options"`
+	Options []OptionsResForQuestion `json:"options"`
 }
 
 type QuestionsResForQuiz struct{
@@ -30,14 +30,27 @@ type QuestionsResForQuiz struct{
 }
 
 func ConvertQuestionsRes(question *Questions) *QuestionsRes {
+    optionRes := []OptionsResForQuestion{} 
+
+    for _, opt := range question.Options {
+        optionRes = append(optionRes, OptionsResForQuestion{
+            Id:       opt.ID,
+            Value:    opt.Value,
+            Is_right: opt.Is_right,
+        })
+    }
+
     questionRes := QuestionsRes{
         Id:         question.ID,
-        Created_at: question.CreatedAt,
-        Updatad_at: question.UpdatedAt,
-		Question  : question.Question,
+		Created_at: question.CreatedAt,
+		Updatad_at: question.UpdatedAt,
+		Quiz_id: question.Quiz_id,
+        Question:   question.Question,
+        Options:    optionRes, 
     }
-    return &questionRes
+    return &questionRes 
 }
+
 
 func ConvertAllQuestionsQuiz(questions []Questions) []QuestionsResForQuiz {
 	var questionRes []QuestionsResForQuiz

@@ -37,13 +37,8 @@ func NewQuestionsControllInterface(r repository.QuestionsInterface, j helper.JWT
 
 func (qc *QuestionsController) InsertQuestion() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		quizId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid quizId", nil, nil))
-		}
+		
 		var newQuestions model.Questions
-
-		newQuestions.Quiz_id = uint(quizId)
 
 		if err := c.Bind(&newQuestions); err != nil {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid user input", nil, nil))
