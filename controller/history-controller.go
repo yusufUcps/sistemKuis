@@ -17,19 +17,22 @@ type HistoryControllInterface interface {
 	GetAllHistoryScoreMyQuiz() echo.HandlerFunc
 	GetHistoryScoreById() echo.HandlerFunc
 	GetAllHistoryAnswer() echo.HandlerFunc
+	ExportMyHistoryScore() echo.HandlerFunc
 	
 }
 
 type HistoryController struct {
 	repository repository.HistoryInterface
 	jwt helper.JWTInterface
+	Export helper.ExportInterface
 }
 
 
-func NewHistoryControllInterface(r repository.HistoryInterface, j helper.JWTInterface) HistoryControllInterface {
+func NewHistoryControllInterface(r repository.HistoryInterface, j helper.JWTInterface, e helper.ExportInterface) HistoryControllInterface {
 	return &HistoryController{
 		repository: r,
 		jwt : j,
+		Export: e,
 	}
 }
 
@@ -219,5 +222,33 @@ func (hc *HistoryController) GetAllHistoryAnswer() echo.HandlerFunc {
 		resPaging := model.ConvertPaging(page, pageSize, count) 
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Get Get All History Answer", resConvert, resPaging))
+	}
+}
+
+func (hc *HistoryController) ExportMyHistoryScore() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		
+		var token = c.Get("user")
+		id := hc.jwt.ExtractToken(token.(*jwt.Token))
+		
+		res, errCase := hc.repository.ExMyHistoryScore(id)
+
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("Failed to Get All My History Score", nil, nil))
+		}
+
+		if errCase == 2 {
+			return c.JSON(http.StatusNotFound, helper.FormatResponse("History Score not Found", nil, nil))
+		}
+
+		resConvert := model.ConvertAllMyHitoryScoreRes(res)
+
+		resExport, err := hc.Export.ExportMyHistoryScore(resConvert, id)
+
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("failed to export", nil, nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Export My History Score", resExport, nil))
 	}
 }

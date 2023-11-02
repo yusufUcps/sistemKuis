@@ -13,6 +13,8 @@ type HistoryInterface interface {
 	GetAllHistoryScoreMyQuiz(page int, pageSize int, quizId uint, search string, userId uint) ([]model.HistoryScore, int64, int)
 	GetHistoryScoreById(historyId uint, userId uint) (*model.HistoryScore, int)
 	GetAllHistoryAnswer(page int, pageSize int, historyId uint, userId uint) ([]model.HistoryAnswers, int64, int)
+	ExMyHistoryScore(userId uint) ([]model.HistoryScore, int)
+	
 }
 
 type HistoryModel struct {
@@ -214,4 +216,22 @@ func (hm *HistoryModel) GetAllHistoryAnswer(page int, pageSize int, historyId ui
 	}
 
 	return  listHistoryAnswers, count, 0
+}
+
+func (hm *HistoryModel) ExMyHistoryScore(userId uint) ([]model.HistoryScore, int) {
+	var listHistoryScore []model.HistoryScore
+	var count int64
+
+	if err := hm.db.Where("user_id = ?", userId).Find(&listHistoryScore).Count(&count).Error; err != nil {
+		
+		logrus.Error("Repository: Select method Get ExlistHistoryScore data error, ", err.Error())
+		return nil, 1
+	}
+
+	if count == 0 {
+		logrus.Error("Repository: not found Questions")
+		return nil, 2
+	}
+
+	return listHistoryScore, 0
 }

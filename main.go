@@ -22,6 +22,7 @@ func main() {
 
 	jwtInterface := helper.New(config.Secret)
 	openAiInterface := helper.NewOpenAi(config.OpenAiKey)
+	ExportInterface := helper.NewExport(config.ClientEmail, config.PrivateKey, config.FolderId)
 
 	userModel := repository.NewUsersModel(db)
 	quizModel := repository.NewQuizModel(db)
@@ -33,7 +34,7 @@ func main() {
 	quizControll := controller.NewQuizControllInterface(quizModel, jwtInterface)
 	questionControll := controller.NewQuestionsControllInterface(questionModel, jwtInterface, openAiInterface)
 	optionControll := controller.NewOptionsControllInterface(optionModel, jwtInterface)
-	historyControll := controller.NewHistoryControllInterface(historyModel, jwtInterface)
+	historyControll := controller.NewHistoryControllInterface(historyModel, jwtInterface, ExportInterface)
 
 
 	e.Pre(middleware.RemoveTrailingSlash())
