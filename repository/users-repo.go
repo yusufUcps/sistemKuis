@@ -42,6 +42,10 @@ func (um *UsersModel) Register(newUser model.Users) (*model.Users, int) {
 		logrus.Error("Repository: Email already registered")
 		return nil, 1 
 	}
+	if newUser.Password == ""{
+		logrus.Error("Repository: password nil")
+		return nil, 3
+	}
 	hashedPassword := helper.HashPassword(newUser.Password)
 	newUser.Password = hashedPassword
 
