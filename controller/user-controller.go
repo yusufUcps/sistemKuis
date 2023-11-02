@@ -15,6 +15,7 @@ type UserControllInterface interface {
 	Login() echo.HandlerFunc
 	MyProfile() echo.HandlerFunc
 	UpdateMyProfile() echo.HandlerFunc
+	DeleteUser() echo.HandlerFunc
 }
 
 type UserController struct {
@@ -132,5 +133,22 @@ func (uc *UserController) UpdateMyProfile() echo.HandlerFunc {
 		resConvert := model.ConvertMyProfileRes(res)
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("success update user profile", resConvert, nil))
+	}
+}
+
+func (uc *UserController) DeleteUser() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var token = c.Get("user")
+
+		id := uc.jwt.ExtractToken(token.(*jwt.Token))
+
+
+		errCase := uc.repository.DeleteUser(id)
+
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("failed to Delete User", nil, nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("success Delete User", nil, nil))
 	}
 }

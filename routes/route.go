@@ -13,6 +13,7 @@ func RouteUser(e *echo.Echo, uc controller.UserControllInterface, cfg configs.Pr
 	e.POST("/login", uc.Login())
 	e.GET("/user", uc.MyProfile(), echojwt.JWT([]byte(cfg.Secret)))
 	e.PUT("/user", uc.UpdateMyProfile(), echojwt.JWT([]byte(cfg.Secret)))
+	e.DELETE("/user", uc.DeleteUser(), echojwt.JWT([]byte(cfg.Secret)))
 }
 
 func RouteQuiz(e *echo.Echo, uq controller.QuizControllInterface, cfg configs.ProgramConfig) {

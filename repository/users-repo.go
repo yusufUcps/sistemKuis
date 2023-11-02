@@ -13,6 +13,7 @@ type UsersInterface interface {
 	Login(email string, password string) (*model.Users, int)
 	MyProfile(id uint) (*model.Users, int)
 	UpdateMyProfile(updateUser model.Users) (*model.Users, int)
+	DeleteUser(userId uint)  int
 }
 
 type UsersModel struct {
@@ -125,6 +126,22 @@ func (um *UsersModel) UpdateMyProfile(updateUser model.Users) (*model.Users, int
 	}
 
 	return &user, 0
+}
+
+func (um *UsersModel) DeleteUser(userId uint)  int {
+	var user = model.Users{}
+
+	if err := um.db.First(&user, userId).Error; err != nil {
+		logrus.Error("Repository: Select method UpdateQuiz data error, ", err.Error())
+		return  1
+	}
+
+	if err := um.db.Delete(&user).Error; err != nil {
+		logrus.Error("Repository: Delete method DeleteQuiz data error, ", err.Error())
+		return  1
+	}
+
+	return  0
 }
 
 
