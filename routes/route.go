@@ -30,4 +30,5 @@ func RouteQuestion(e *echo.Echo, uq controller.QuestionsControllInterface, cfg c
 	e.GET("/question/:id", uq.GetQuetionByID(), echojwt.JWT([]byte(cfg.Secret)))
 	e.PUT("/question/:id", uq.UpdateQuestion(), echojwt.JWT([]byte(cfg.Secret)))
 	e.POST("/generate", uq.GenerateQuestion(), echojwt.JWT([]byte(cfg.Secret)))
+	e.DELETE("/question/:id", uq.DeleteQuestion(), echojwt.JWT([]byte(cfg.Secret)))
 }

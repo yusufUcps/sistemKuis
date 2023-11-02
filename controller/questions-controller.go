@@ -17,6 +17,7 @@ type QuestionsControllInterface interface {
 	UpdateQuestion() echo.HandlerFunc
 	GetQuetionByID() echo.HandlerFunc
 	GenerateQuestion() echo.HandlerFunc
+	DeleteQuestion() echo.HandlerFunc
 }
 
 type QuestionsController struct {
@@ -155,6 +156,33 @@ func (qc *QuestionsController) UpdateQuestion() echo.HandlerFunc {
 		resConvert := model.ConvertQuestionsRes(res)
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("success update question", resConvert, nil))
+	}
+}
+
+func (qc *QuestionsController) DeleteQuestion() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var token = c.Get("user")
+		questionId, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid questionId", nil, nil))
+		}
+
+		id := qc.jwt.ExtractToken(token.(*jwt.Token))
+
+		question_id := uint(questionId)
+
+		errCase := qc.repository.DeleteQuestion(question_id, id)
+
+		if errCase == 2 {
+			return c.JSON(http.StatusUnauthorized, helper.FormatResponse("You cannot Delete this question", nil, nil))
+		}
+
+		if errCase == 1 {
+			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("failed to Delete question", nil, nil))
+		}
+
+		return c.JSON(http.StatusOK, helper.FormatResponse("success Delete question", nil, nil))
 	}
 }
 

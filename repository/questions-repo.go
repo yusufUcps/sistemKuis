@@ -13,6 +13,7 @@ type QuestionsInterface interface {
 	GetQuestionByID(id uint) (*model.Questions, int)
 	UpdateQuestion(updateQuestions model.Questions, userId uint) (*model.Questions, int)
 	InsertGenerateQuestion(newQuestions []model.Questions) ([]model.Questions, int)
+	DeleteQuestion(questionsId uint, userId uint)  int
 }
 
 type QuestionsModel struct {
@@ -130,4 +131,31 @@ func (qm *QuestionsModel) InsertGenerateQuestion(newQuestions []model.Questions)
 	}
 
 	return questions , 0
+}
+
+func (qm *QuestionsModel) DeleteQuestion(questionsId uint, userId uint)  int {
+	var questions = model.Questions{}
+	var quiz = model.Quiz{}
+
+	if err := qm.db.First(&questions, questionsId).Error; err != nil {
+		logrus.Error("Repository: Select method quesrions in DeleteQuestions data error, ", err.Error())
+		return  1
+	}
+
+	if err := qm.db.First(&quiz, questions.Quiz_id).Error; err != nil {
+		logrus.Error("Repository: Select method quesrions in DeleteQuestions data error,", err.Error())
+		return  1
+	}
+
+	if userId != quiz.User_id {
+		logrus.Error("Repository: DeleteQuiz, Unauthorized")
+		return  2
+	}
+
+	if err := qm.db.Delete(&questions).Error; err != nil {
+		logrus.Error("Repository: Delete method DeleteQuiz data error, ", err.Error())
+		return  1
+	}
+
+	return  0
 }
