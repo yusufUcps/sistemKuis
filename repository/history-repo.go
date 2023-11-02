@@ -9,7 +9,7 @@ import (
 
 type HistoryInterface interface {
 	AnswersInsert(answers []model.Answers, user_id uint, quiz_id uint) (*model.HistoryScore, int)
-	
+	GetAllMyHistoryScore(page int, pageSize int, userId uint, search string) ([]model.HistoryScore, int64, int)
 }
 
 type HistoryModel struct {
@@ -89,4 +89,28 @@ func (hm *HistoryModel) AnswersInsert(answers []model.Answers, user_id uint, qui
 	}
 	
 	return &historyScore , 0
+}
+
+func (hm *HistoryModel) GetAllMyHistoryScore(page int, pageSize int, userId uint, search string) ([]model.HistoryScore, int64, int) {
+	var listHistoryScore []model.HistoryScore
+	var count int64
+
+	if page <= 0 {
+        return nil, 0, 1
+    }
+
+	offset := (page - 1) * pageSize
+
+	if err := hm.db.Offset(offset).Limit(pageSize).Where("user_id = ? AND title LIKE ?", userId, "%"+search+"%").Find(&listHistoryScore).Count(&count).Error; err != nil {
+		
+		logrus.Error("Repository: Select method Get MyHistoryScore data error, ", err.Error())
+		return nil, 0, 2
+	}
+
+	if count == 0 {
+		logrus.Error("Repository: not found MyHistoryScore")
+		return nil, 0, 3
+	}
+
+	return listHistoryScore, count, 0
 }

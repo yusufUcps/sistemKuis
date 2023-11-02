@@ -43,4 +43,5 @@ func RouteOption(e *echo.Echo, uq controller.OptionsControllInterface, cfg confi
 
 func RouteHistory(e *echo.Echo, uh controller.HistoryControllInterface, cfg configs.ProgramConfig) { 
 	e.POST("/aswering", uh.Answering(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/history-score", uh.GetAllMyHistoryScore(), echojwt.JWT([]byte(cfg.Secret)))
 }
