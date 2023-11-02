@@ -21,12 +21,17 @@ func main() {
 	database.Migrate(db)
 
 	jwtInterface := helper.New(config.Secret)
+	openAiInterface := helper.NewOpenAi(config.OpenAiKey)
 
 	userModel := repository.NewUsersModel(db)
 	quizModel := repository.NewQuizModel(db)
+	questionModel := repository.NewQuestionsModel(db)
+	optionModel := repository.NewOptionsModel(db)
 
 	userControll := controller.NewUserControllInterface(userModel, jwtInterface)
 	quizControll := controller.NewQuizControllInterface(quizModel, jwtInterface)
+	questionControll := controller.NewQuestionsControllInterface(questionModel, jwtInterface, openAiInterface)
+	optionControll := controller.NewOptionsControllInterface(optionModel, jwtInterface)
 
 	e.Pre(middleware.RemoveTrailingSlash())
 
@@ -38,6 +43,8 @@ func main() {
 
 	routes.RouteUser(e, userControll, *config)
 	routes.RouteQuiz(e, quizControll, *config)
+	routes.RouteQuestion(e, questionControll, *config)
+	routes.RouteOption(e, optionControll, *config)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.ServerPort)).Error())
 }

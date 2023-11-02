@@ -23,3 +23,21 @@ func RouteQuiz(e *echo.Echo, uq controller.QuizControllInterface, cfg configs.Pr
 	e.DELETE("/quiz/:id", uq.DeleteQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 	e.GET("/my-quiz", uq.GetAllMyQuiz(), echojwt.JWT([]byte(cfg.Secret)))
 }
+
+func RouteQuestion(e *echo.Echo, uq controller.QuestionsControllInterface, cfg configs.ProgramConfig) { 
+	e.POST("/question/:id", uq.InsertQuestion(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/questions", uq.GetAllQuestionsQuiz(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/question/:id", uq.GetQuetionByID(), echojwt.JWT([]byte(cfg.Secret)))
+	e.PUT("/question/:id", uq.UpdateQuestion(), echojwt.JWT([]byte(cfg.Secret)))
+	e.POST("/generate", uq.GenerateQuestion(), echojwt.JWT([]byte(cfg.Secret)))
+	e.DELETE("/question/:id", uq.DeleteQuestion(), echojwt.JWT([]byte(cfg.Secret)))
+}
+
+func RouteOption(e *echo.Echo, uq controller.OptionsControllInterface, cfg configs.ProgramConfig) { 
+	e.POST("/option", uq.InsertOption(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/options", uq.GetAllOptionsQuiz(), echojwt.JWT([]byte(cfg.Secret)))
+	e.GET("/option/:id", uq.GetOptionByID(), echojwt.JWT([]byte(cfg.Secret)))
+	e.PUT("/option/:id", uq.UpdateOption(), echojwt.JWT([]byte(cfg.Secret)))
+	e.DELETE("/option/:id", uq.DeleteOption(), echojwt.JWT([]byte(cfg.Secret)))
+}
+
