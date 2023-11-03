@@ -210,7 +210,7 @@ func (hm *HistoryModel) GetAllHistoryAnswer(page int, pageSize int, historyId ui
 		return nil, 0, 2
 	}
 
-	if userId != quiz.User_id || userId != history.User_id{
+	if  userId != history.User_id{
 		logrus.Error("Repository:  HistoryAnswer, Unauthorized")
 		return  nil, 0, 4
 	}
@@ -294,7 +294,7 @@ func (hm *HistoryModel) ExHistoryAnswer(historyId uint, userId uint) ([]model.Hi
 		return nil,  1
 	}
 
-	if userId != quiz.User_id || userId != history.User_id{
+	if  userId != history.User_id{
 		logrus.Error("Repository: DeleteQuiz, Unauthorized")
 		return  nil,  2
 	}
