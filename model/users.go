@@ -11,7 +11,6 @@ type Users struct {
     Name     string `json:"name" gorm:"type:varchar(255);not null"`
     Email    string `json:"email" gorm:"type:varchar(50);unique;not null"`
     Password string `json:"password" gorm:"not null"`
-    Quiz 	[]Quiz `json:"questions" gorm:"foreignKey:user_id"`
 }
 
 type UserRegisterRes struct {
