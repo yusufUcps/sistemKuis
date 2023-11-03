@@ -1,0 +1,6 @@
+id,question_id,question,option_id,answer,is_right
+56,16,Mana yang bukan tarian tradisional Indonesia?,56,Tari Payung,true
+57,17,Di mana asal tarian Bidadari Bidadari Sesembahan Berdansa?,62,Bali,true
+58,18,Tarian Saman dikembangkan di manakah?,65,Gorontalo,false
+59,19,Mana yang bukan ciri tari Bali?,69,Gerak yang digeser,false
+60,20,"Tari ini banyak ditonjolkan di media seperti TV, film, bioskop, konser, dan lain-lain. Tari ini adalah?",74,Tari Sajang,false
