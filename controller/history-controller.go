@@ -35,7 +35,7 @@ func NewHistoryControllInterface(r repository.HistoryInterface, j helper.JWTInte
 		jwt : j,
 		Export: e,
 	}
-}
+} 
 
 func (hc *HistoryController) Answering() echo.HandlerFunc {
 	return func(c echo.Context) error {

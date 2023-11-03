@@ -216,3 +216,4 @@ func (qc *QuizController) GetAllMyQuiz() echo.HandlerFunc {
 		return c.JSON(http.StatusOK, helper.FormatResponse("Succes Get All Quiz", resConvert, resPaging))
 	}
 }
+

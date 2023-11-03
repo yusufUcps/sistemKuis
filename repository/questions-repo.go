@@ -159,3 +159,4 @@ func (qm *QuestionsModel) DeleteQuestion(questionsId uint, userId uint)  int {
 
 	return  0
 }
+
