@@ -360,7 +360,7 @@ func TestMyProfile(t *testing.T) {
         mockRepo.On("MyProfile", userID).Return(&user, 0)
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodGet, "/myprofile", nil)
+        req := httptest.NewRequest(http.MethodGet, "/user/me", nil)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
         c.Set("user", token)
@@ -403,7 +403,7 @@ func TestMyProfile(t *testing.T) {
         mockRepo.On("MyProfile", userID).Return(nil, 1)
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodGet, "/myprofile", nil)
+        req := httptest.NewRequest(http.MethodGet, "/user/me", nil)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
         c.Set("user", token)
@@ -455,7 +455,7 @@ func TestUpdateMyProfile(t *testing.T) {
 
         e := echo.New()
         reqPayload := strings.NewReader(`{"Name":"updated name", "Email":"updated@example.com", "Password":"updated123"}`)
-        req := httptest.NewRequest(http.MethodPut, "/updateMyProfile", reqPayload)
+        req := httptest.NewRequest(http.MethodPut, "/user", reqPayload)
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
         req.Header.Set(echo.HeaderAuthorization, "Bearer " + tokenString)
         rec := httptest.NewRecorder()
@@ -499,7 +499,7 @@ func TestUpdateMyProfile(t *testing.T) {
 
         e := echo.New()
         reqPayload := strings.NewReader(`{"Name":"updated name", "Email":"updated@example.com", "Password":"updated123"}`)
-        req := httptest.NewRequest(http.MethodPut, "/updateMyProfile", reqPayload)
+        req := httptest.NewRequest(http.MethodPut, "/user", reqPayload)
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
         req.Header.Set(echo.HeaderAuthorization, "Bearer " + tokenString)
         rec := httptest.NewRecorder()
@@ -541,7 +541,7 @@ func TestUpdateMyProfile(t *testing.T) {
 
         e := echo.New()
         reqPayload := strings.NewReader(`{"Name":"updated name", "Email":"updated@example.com", "Password":"updated123"}`)
-        req := httptest.NewRequest(http.MethodPut, "/updateMyProfile", reqPayload)
+        req := httptest.NewRequest(http.MethodPut, "/user", reqPayload)
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
         req.Header.Set(echo.HeaderAuthorization, "Bearer " + tokenString)
         rec := httptest.NewRecorder()
@@ -580,7 +580,7 @@ func TestUpdateMyProfile(t *testing.T) {
 	
 		e := echo.New()
 		reqPayload := strings.NewReader(`{"Invalid JSON"}`)
-		req := httptest.NewRequest(http.MethodPut, "/updateMyProfile", reqPayload)
+		req := httptest.NewRequest(http.MethodPut, "/user", reqPayload)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		req.Header.Set(echo.HeaderAuthorization, "Bearer "+tokenString)
 		rec := httptest.NewRecorder()
@@ -622,7 +622,7 @@ func TestDeleteUser(t *testing.T) {
         mockRepo.On("DeleteUser", userID).Return(0) 
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodDelete, "/deleteuser", nil)
+        req := httptest.NewRequest(http.MethodDelete, "/user", nil)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
         c.Set("user", token)
@@ -669,7 +669,7 @@ func TestDeleteUser(t *testing.T) {
         mockRepo.On("DeleteUser", userID).Return(1) 
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodDelete, "/deleteuser", nil)
+        req := httptest.NewRequest(http.MethodDelete, "/user", nil)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
         c.Set("user", token)
