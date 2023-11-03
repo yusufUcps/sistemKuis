@@ -30,7 +30,7 @@ func TestInsertQuestion(t *testing.T) {
 	// Mock the request payload
 	reqPayload := `{"quiz_id": 1, "question": "What is 1+1?", "options": []}`
 
-	req := httptest.NewRequest(http.MethodPost, "/insert-question", strings.NewReader(reqPayload))
+	req := httptest.NewRequest(http.MethodPost, "/question", strings.NewReader(reqPayload))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -64,7 +64,7 @@ func TestGetAllQuestionsQuiz(t *testing.T) {
 		qc := controller.NewQuestionsControllInterface(mockRepo, mockJWT, mockOpenAI)
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodGet, "/get-all-questions-quiz?quizId=1&page=1&pageSize=10", nil)
+        req := httptest.NewRequest(http.MethodGet, "/questions?quizId=1&page=1&pageSize=10", nil)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
 
@@ -101,7 +101,7 @@ func TestGetQuetionByID(t *testing.T) {
 		qc := controller.NewQuestionsControllInterface(mockRepo, mockJWT, mockOpenAI)
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodGet, "/get-question/1", nil)
+        req := httptest.NewRequest(http.MethodGet, "/question/1", nil)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
         c.SetParamNames("id")
@@ -149,7 +149,7 @@ func TestUpdateQuestion(t *testing.T) {
         reqPayload := `{"quiz_id": 1, "question": "What is 1+1?", "options": []}`
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodPut, "/update-question/1", strings.NewReader(reqPayload))
+        req := httptest.NewRequest(http.MethodPut, "/question/1", strings.NewReader(reqPayload))
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
@@ -198,7 +198,7 @@ func TestDeleteQuestion(t *testing.T) {
         }
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodDelete, "/delete-question/1", nil)
+        req := httptest.NewRequest(http.MethodDelete, "/question/1", nil)
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
@@ -256,7 +256,7 @@ func TestGenerateQuestion(t *testing.T) {
 			"description": "Your description"
 		}`
 
-		req := httptest.NewRequest(http.MethodPost, "/your-endpoint", strings.NewReader(requestPayload))
+		req := httptest.NewRequest(http.MethodPost, "/questions/generate", strings.NewReader(requestPayload))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		e := echo.New()
@@ -304,7 +304,7 @@ func TestGenerateQuestion(t *testing.T) {
 			"description": "Your description"
 		}`
 
-		req := httptest.NewRequest(http.MethodPost, "/your-endpoint", strings.NewReader(requestPayload))
+		req := httptest.NewRequest(http.MethodPost, "/question", strings.NewReader(requestPayload))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		e := echo.New()

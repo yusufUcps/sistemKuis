@@ -572,7 +572,7 @@ func TestGetAllMyQuiz(t *testing.T) {
         mockRepo.On("GetAllMyQuiz", 1, 10, "", uint(1)).Return(mockData, count, 0)
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodGet, "/my-quizzes?page=1&pageSize=10", nil)
+        req := httptest.NewRequest(http.MethodGet, "/quiz/me?page=1&pageSize=10", nil)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
         c.Set("user", token)

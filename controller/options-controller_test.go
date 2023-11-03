@@ -28,7 +28,7 @@ func TestInsertOptions(t *testing.T) {
 
 	reqPayload := `{"question_id": 1, "value": "What is 1+1?", "ist_right": true}`
 
-	req := httptest.NewRequest(http.MethodPost, "/insert", strings.NewReader(reqPayload))
+	req := httptest.NewRequest(http.MethodPost, "/option", strings.NewReader(reqPayload))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -51,7 +51,7 @@ func TestInsertOptions(t *testing.T) {
 }
 
 func TestGetAllOptionsQuiz(t *testing.T) {
-    t.Run("SuccessfulGetAllQuestionsQuiz", func(t *testing.T) {
+    t.Run("SuccessfulGetAllOptionsQuiz", func(t *testing.T) {
         // Create mock objects and fake variables
         mockRepo := new(mocks.OptionsInterface)
 		mockJWT := new(mocks.JWTInterface)
@@ -61,7 +61,7 @@ func TestGetAllOptionsQuiz(t *testing.T) {
 		var coba []model.Options
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodGet, "/get-all-questions-quiz?questionId=1", nil)
+        req := httptest.NewRequest(http.MethodGet, "/option?questionId=1", nil)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
 
@@ -93,7 +93,7 @@ func TestGetOptionByID(t *testing.T) {
 		var coba model.Options
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodGet, "/get-question/1", nil)
+        req := httptest.NewRequest(http.MethodGet, "/option/1", nil)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
         c.SetParamNames("id")
@@ -116,7 +116,7 @@ func TestGetOptionByID(t *testing.T) {
 }
 
 func TestUpdateOption(t *testing.T) {
-    t.Run("SuccessfulUpdateQuestion", func(t *testing.T) {
+    t.Run("SuccessfulUpdateOption", func(t *testing.T) {
         mockRepo := new(mocks.OptionsInterface)
 		mockJWT := new(mocks.JWTInterface)
 
@@ -140,7 +140,7 @@ func TestUpdateOption(t *testing.T) {
         reqPayload := `{"question_id": 1, "value": "What is 1+1?", "ist_right": true}`
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodPut, "/update-question/1", strings.NewReader(reqPayload))
+        req := httptest.NewRequest(http.MethodPut, "/option/1", strings.NewReader(reqPayload))
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
@@ -168,7 +168,7 @@ func TestUpdateOption(t *testing.T) {
 }
 
 func TestDeleteOption(t *testing.T) {
-    t.Run("SuccessfulDeleteQuestion", func(t *testing.T) {
+    t.Run("SuccessfulDeleteOption", func(t *testing.T) {
 		mockRepo := new(mocks.OptionsInterface)
 		mockJWT := new(mocks.JWTInterface)
 
@@ -188,7 +188,7 @@ func TestDeleteOption(t *testing.T) {
         }
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodDelete, "/delete-OPTION/1", nil)
+        req := httptest.NewRequest(http.MethodDelete, "/option/1", nil)
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)

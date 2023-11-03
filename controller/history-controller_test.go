@@ -38,7 +38,7 @@ func TestInsertAnswer(t *testing.T) {
 
     reqPayload := `[{"question_id": 1, "option_id": 2}]`
 
-    req := httptest.NewRequest(http.MethodPost, "/?quizId=1", strings.NewReader(reqPayload))
+    req := httptest.NewRequest(http.MethodPost, "/history/answers?quizId=1", strings.NewReader(reqPayload))
     req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
     rec := httptest.NewRecorder()
     c := e.NewContext(req, rec)
@@ -83,7 +83,7 @@ func TestGetAllMyHistoryScore(t *testing.T) {
 		var coba []model.HistoryScore
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodGet, "/get-all-history", nil)
+        req := httptest.NewRequest(http.MethodGet, "/history/score", nil)
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
@@ -128,7 +128,7 @@ func TestGetAllMyHistoryMyquiz(t *testing.T) {
 		var coba []model.HistoryScore
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodGet, "/get-all-history?quizId=1", nil)
+        req := httptest.NewRequest(http.MethodGet, "/history/score/quiz?quizId=1", nil)
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
@@ -173,7 +173,7 @@ func TestGetHistoryScoreById(t *testing.T) {
 		var coba model.HistoryScore
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodGet, "/get-question/1", nil)
+        req := httptest.NewRequest(http.MethodGet, "/history/score/1", nil)
         rec := httptest.NewRecorder()
         c := e.NewContext(req, rec)
 		req.Header.Set(echo.HeaderAuthorization, "Bearer "+tokenString)
@@ -218,7 +218,7 @@ func TestGetAllHistoryAnswer(t *testing.T) {
 		var coba []model.HistoryAnswers
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodGet, "/get-all-history?historyId=1", nil)
+        req := httptest.NewRequest(http.MethodGet, "/history/answer?historyId=1", nil)
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
@@ -266,7 +266,7 @@ func TestExAllMyHistoryScore(t *testing.T) {
 		var res model.ExportRes
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodGet, "/get-all-history", nil)
+        req := httptest.NewRequest(http.MethodGet, "/history/score/export", nil)
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
@@ -314,7 +314,7 @@ func TestExportHistoryScoreMyQuiz(t *testing.T) {
 		var res model.ExportRes
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodGet, "/get-all-history?quizId=1", nil)
+        req := httptest.NewRequest(http.MethodGet, "/history/score/quiz/export?quizId=1", nil)
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
@@ -362,7 +362,7 @@ func TestExportHistoryAnswer(t *testing.T) {
 		var res model.ExportRes
 
         e := echo.New()
-        req := httptest.NewRequest(http.MethodGet, "/get-all-history?historyId=1", nil)
+        req := httptest.NewRequest(http.MethodGet, "/history/answer/export?historyId=1", nil)
         req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
