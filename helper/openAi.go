@@ -34,7 +34,7 @@ func (op *OpenAi) GenerateQuestions(newPromt model.OpenAiReq) []model.Questions 
 		context.Background(),
 		openai.CompletionRequest{
 			Model: openai.GPT3TextDavinci003,
-			Prompt: fmt.Sprintf("kamu akan diperintahakan untuk membuat beberapa soal minimal 10 soal sesuai dengan description yang diberikan, dan kamu harus mengikuti format json seperti ini %s\n dan kamu hanya menampilkan format question dan options seperti dicontohkan dan kamu akan membuat soal yang semua quiz_id : %d, dan sesuai dengan deskirsi berikut: %s", format, newPromt.Quiz_id, newPromt.Description),
+			Prompt: fmt.Sprintf("kamu akan diperintahakan untuk membuat beberapa soal minimal 10 soal sesuai dengan description yang diberikan, dan kamu harus mengikuti format json seperti ini %s\n dan kamu hanya menampilkan format question dan options seperti dicontohkan dan kamu akan membuat soal yang semua nya memiliki quiz_id : %d , dan sesuai dengan deskirsi berikut: %s", format, newPromt.Quiz_id, newPromt.Description),
 			MaxTokens: 3000,
 		},
 	)
