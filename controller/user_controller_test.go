@@ -690,3 +690,4 @@ func TestDeleteUser(t *testing.T) {
         mockRepo.AssertExpectations(t)
     })
 }
+
