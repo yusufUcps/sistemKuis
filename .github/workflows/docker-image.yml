@@ -27,7 +27,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/cdmkuis:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/mipro:latest
       -  
         name: connect ssh
         uses: appleboy/ssh-action@v0.1.9
@@ -39,5 +39,6 @@ jobs:
           script: |
             docker stop ${{ secrets.CNAME }}
             docker rm ${{ secrets.CNAME }}
-            docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/cdmkuis
-            docker run --name ${{ secrets.CNAME }} -p 8000:8000 -d -e DBHOST=${{secrets.DBHOST}} -e DBPORT=3306 -e DBUSER=${{secrets.DBUSER}} -e DBNAME=${{secrets.DBNAME}} -e DBPASS=${{secrets.DBPASS}} -e SECRET=${{secrets.SECRET}} -e CLIENT_EMAIL=${{secrets.CLIENT_EMAIL}} -e PRIVATE_KEY=${{secrets.PRIVATE_KEY}} -e FOLDER_ID=${{secrets.FOLDER_ID}} -e OPENAI_KEY=${{secrets.OPENAI_KEY}} -e SERVER=8000 ${{ secrets.DOCKERHUB_USERNAME }}/cdmkuis
+            docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/mipro
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/mipro
+            docker run --name ${{ secrets.CNAME }} -p 8000:8000 -d -e DBHOST=${{secrets.DBHOST}} -e DBPORT=3306 -e DBUSER=${{secrets.DBUSER}} -e DBNAME=${{secrets.DBNAME}} -e DBPASS=${{secrets.DBPASS}} -e SECRET=${{secrets.SECRET}} -e CLIENT_EMAIL=${{secrets.CLIENT_EMAIL}} -e OPENAI_KEY=${{secrets.OPENAI_KEY}} -e PRIVATE_KEY=${{secrets.PRIVATE_KEY}} -e FOLDER_ID=${{secrets.FOLDER_ID}} ${{ secrets.DOCKERHUB_USERNAME }}/mipro
