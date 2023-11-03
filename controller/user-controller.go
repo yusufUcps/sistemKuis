@@ -52,12 +52,8 @@ func (uc *UserController) Register() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, helper.FormatResponse("invalid input password", nil, nil))
 		}
 
-		var jwtToken = uc.jwt.GenerateJWT(res.ID)
-		if jwtToken == "" {
-			return c.JSON(http.StatusInternalServerError, helper.FormatResponse("cannot process jwt token", nil, nil))
-		}
 
-		resConvert := model.ConvertRegisterRes(res, jwtToken)
+		resConvert := model.ConvertRegisterRes(res)
 
 		return c.JSON(http.StatusOK, helper.FormatResponse("Succes create account", resConvert, nil))
 	}

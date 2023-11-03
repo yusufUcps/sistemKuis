@@ -30,7 +30,7 @@ type MyProfileRes struct {
     Email    string `json:"email" `
 }
 
-func ConvertRegisterRes(user *Users, token string) *UserRegisterRes {
+func ConvertRegisterRes(user *Users) *UserRegisterRes {
     registerRes := UserRegisterRes{
         Id:         user.ID,
         Created_at: user.CreatedAt,
