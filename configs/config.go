@@ -16,9 +16,10 @@ type ProgramConfig struct {
 	DBPass        string
 	DBName        string
 	Secret        string
-	ClientEmail string
-	PrivateKey string
-	FolderId string
+	ClientEmail   string
+	PrivateKey    string
+	FolderId      string
+	OpenAiKey	  string
 }
 
 func InitConfig() *ProgramConfig {
@@ -88,8 +89,13 @@ func loadConfig() *ProgramConfig {
 	if val, found := os.LookupEnv("PRIVATE_KEY"); found {
 		res.PrivateKey = val
 	}
+
 	if val, found := os.LookupEnv("FOLDER_ID"); found {
 		res.FolderId = val
+	}
+	
+	if val, found := os.LookupEnv("OPENAI_KEY"); found {
+		res.OpenAiKey = val
 	}
 
 	return res

@@ -23,10 +23,12 @@ func InitModel(config configs.ProgramConfig) *gorm.DB {
 
 func Migrate(db *gorm.DB) {
 	db.AutoMigrate(
-		&model.Users{}, 
-		&model.Quiz{},
+		&model.Users{},
+		&model.Quiz{}, 
 		&model.Questions{},
 		&model.Options{},
-		&model.HistoryAnswer{},
+		&model.HistoryAnswers{},
+		&model.HistoryScore{},
+		  
 	)
 }
