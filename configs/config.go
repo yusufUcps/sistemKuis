@@ -78,7 +78,7 @@ func loadConfig() *ProgramConfig {
 		res.DBName = val
 	}
 
-	if val, found := os.LookupEnv("SECRET"); found {
+	if val, found := os.LookupEnv("JWTSECRET"); found {
 		res.Secret = val
 	}
 
