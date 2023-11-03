@@ -11,13 +11,13 @@ import (
 
 	"quiz/controller"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestInsertOptions(t *testing.T) {
-	// Create mock objects
 	mockRepo := new(mocks.OptionsInterface)
 	mockJWT := new(mocks.JWTInterface)
 
@@ -47,5 +47,170 @@ func TestInsertOptions(t *testing.T) {
 
 	mockRepo.AssertExpectations(t)
 	mockJWT.AssertExpectations(t)
+
+}
+
+func TestGetAllOptionsQuiz(t *testing.T) {
+    t.Run("SuccessfulGetAllQuestionsQuiz", func(t *testing.T) {
+        // Create mock objects and fake variables
+        mockRepo := new(mocks.OptionsInterface)
+		mockJWT := new(mocks.JWTInterface)
+
+		qc := controller.NewOptionsControllInterface(mockRepo, mockJWT)
+
+		var coba []model.Options
+
+        e := echo.New()
+        req := httptest.NewRequest(http.MethodGet, "/get-all-questions-quiz?questionId=1", nil)
+        rec := httptest.NewRecorder()
+        c := e.NewContext(req, rec)
+
+        c.SetPath("/get-all-questions-quiz")
+
+        mockRepo.On("GetAllOptionsFromQuiz", uint(1)).Return(coba,0)
+
+        err := qc.GetAllOptionsQuiz()(c)
+
+        assert.Nil(t, err)
+        assert.Equal(t, http.StatusOK, rec.Code)
+
+        responseBody := rec.Body.String()
+        t.Log("Response Body:", responseBody)
+
+        mockRepo.AssertExpectations(t)
+    })
+
+}
+
+func TestGetOptionByID(t *testing.T) {
+    t.Run("SuccessfuloptionByID", func(t *testing.T) {
+        // Create mock objects and fake variables
+        mockRepo := new(mocks.OptionsInterface)
+		mockJWT := new(mocks.JWTInterface)
+
+		qc := controller.NewOptionsControllInterface(mockRepo, mockJWT)
+
+		var coba model.Options
+
+        e := echo.New()
+        req := httptest.NewRequest(http.MethodGet, "/get-question/1", nil)
+        rec := httptest.NewRecorder()
+        c := e.NewContext(req, rec)
+        c.SetParamNames("id")
+        c.SetParamValues("1")
+
+        mockRepo.On("GetOptionByID", uint(1)).Return(&coba, 0)
+
+        // Call the GetQuetionByID endpoint
+        err := qc.GetOptionByID()(c)
+
+        assert.Nil(t, err)
+        assert.Equal(t, http.StatusOK, rec.Code)
+
+        responseBody := rec.Body.String()
+        t.Log("Response Body:", responseBody)
+
+        mockRepo.AssertExpectations(t)
+    })
+
+}
+
+func TestUpdateOption(t *testing.T) {
+    t.Run("SuccessfulUpdateQuestion", func(t *testing.T) {
+        mockRepo := new(mocks.OptionsInterface)
+		mockJWT := new(mocks.JWTInterface)
+
+		qc := controller.NewOptionsControllInterface(mockRepo, mockJWT)
+
+		var coba model.Options
+
+        fakeUserID := uint(1)
+
+        userID := uint(1)
+
+        token := jwt.New(jwt.SigningMethodHS256)
+        claims := token.Claims.(jwt.MapClaims)
+        claims["id"] = userID
+
+        tokenString, err := token.SignedString([]byte("s3cr3t"))
+        if err != nil {
+            t.Errorf("token signing error: %s", err)
+        }
+
+        reqPayload := `{"question_id": 1, "value": "What is 1+1?", "ist_right": true}`
+
+        e := echo.New()
+        req := httptest.NewRequest(http.MethodPut, "/update-question/1", strings.NewReader(reqPayload))
+        req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+        rec := httptest.NewRecorder()
+        c := e.NewContext(req, rec)
+        c.Set("user", token)
+        req.Header.Set(echo.HeaderAuthorization, "Bearer "+tokenString)
+        c.SetParamNames("id")
+        c.SetParamValues("1")
+
+        mockJWT.On("ExtractToken", mock.Anything).Return(uint(fakeUserID))
+
+        mockRepo.On("UpdateOption", mock.Anything, uint(fakeUserID)).Return(&coba, 0)
+
+        err = qc.UpdateOption()(c)
+
+        assert.Nil(t, err)
+        assert.Equal(t, http.StatusOK, rec.Code)
+
+        responseBody := rec.Body.String()
+        t.Log("Response Body:", responseBody)
+
+        mockRepo.AssertExpectations(t)
+        mockJWT.AssertExpectations(t)
+    })
+
+}
+
+func TestDeleteOption(t *testing.T) {
+    t.Run("SuccessfulDeleteQuestion", func(t *testing.T) {
+		mockRepo := new(mocks.OptionsInterface)
+		mockJWT := new(mocks.JWTInterface)
+
+		qc := controller.NewOptionsControllInterface(mockRepo, mockJWT)
+
+        fakeUserID := uint(1)
+
+        userID := uint(1)
+
+        token := jwt.New(jwt.SigningMethodHS256)
+        claims := token.Claims.(jwt.MapClaims)
+        claims["id"] = userID
+
+        tokenString, err := token.SignedString([]byte("s3cr3t"))
+        if err != nil {
+            t.Errorf("token signing error: %s", err)
+        }
+
+        e := echo.New()
+        req := httptest.NewRequest(http.MethodDelete, "/delete-OPTION/1", nil)
+        req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+        rec := httptest.NewRecorder()
+        c := e.NewContext(req, rec)
+        c.Set("user", token)
+        req.Header.Set(echo.HeaderAuthorization, "Bearer "+tokenString)
+        c.SetParamNames("id")
+        c.SetParamValues("1")
+
+        mockJWT.On("ExtractToken", mock.Anything).Return(uint(fakeUserID))
+
+        mockRepo.On("DeleteOption", uint(1), uint(fakeUserID)).Return(0)
+
+        err = qc.DeleteOption()(c)
+
+        assert.Nil(t, err)
+        assert.Equal(t, http.StatusOK, rec.Code)
+
+        responseBody := rec.Body.String()
+        t.Log("Response Body:", responseBody)
+
+        mockRepo.AssertExpectations(t)
+        mockJWT.AssertExpectations(t)
+    })
 
 }
