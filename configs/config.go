@@ -3,6 +3,7 @@ package configs
 import (
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
@@ -87,7 +88,8 @@ func loadConfig() *ProgramConfig {
 	}
 
 	if val, found := os.LookupEnv("PRIVATE_KEY"); found {
-		res.PrivateKey = val
+		cleanedVal := strings.ReplaceAll(val, "*", " ")
+		res.PrivateKey = cleanedVal
 	}
 
 	if val, found := os.LookupEnv("FOLDER_ID"); found {
