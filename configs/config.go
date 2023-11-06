@@ -83,7 +83,7 @@ func loadConfig() *ProgramConfig {
 	}
 
 	if val, found := os.LookupEnv("PRIVATE_KEY"); found {
-		cleanedVal := strings.ReplaceAll(val, "***", "\n)
+		cleanedVal := strings.ReplaceAll(val, "***", "\n")
 		cleanedVal = strings.ReplaceAll(cleanedVal, "**", "==\n-----END PRIVATE KEY-----\n")
 		cleanedVal = strings.ReplaceAll(cleanedVal, "*", "-----BEGIN PRIVATE KEY-----\n")
 		res.PrivateKey = cleanedVal
